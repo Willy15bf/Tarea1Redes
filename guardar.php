@@ -19,7 +19,13 @@ $port=$_REQUEST['port'];
 $archivo="datos.txt";
  
      $file=fopen($archivo,"a");
-     fwrite($file,$name.$ip.$port);
+     fwrite($file,$name."\r\n");
+     fwrite($file,$ip."\r\n");
+     fwrite($file,$port."\r\n\r\n");
+     
      fclose($file);
+
+header("Location: enviado.html");
+
 ?>
 
