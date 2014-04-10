@@ -11,10 +11,10 @@
     <title>Agregar Contacto</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="css/starter-template.css" rel="stylesheet">
+    <link href="../css/starter-template.css" rel="stylesheet">
 
     <!-- Just for debugging purposes. Don't actually copy this line! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -37,25 +37,49 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Avioncito de papel I</a>
+          <a class="navbar-brand" href="../index.html">Avioncito de papel I</a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-			<li><a href="contactos/index.html">Ver contactos</a></li>
-            <li><a href="contactos/new.html">Agregar contactos</a></li>
+            <li><a href="index.html">Ver contactos</a></li>
+            <li class="active"><a href="#">Agregar contactos</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </div>
 
-	<div class="container">
-		<div class="starter-template">
-			<h1>¡Bienvenido!</h1><br>
-			<p class="lead"><b>Avioncito de Papel I </b>es una aplicación de mensajería<br>instantánea creada por el grupo 9:<br><br>Iván González 2973523-9<br>Guillermo Baeza 2973600-6</p>
-		</div>
+    <div style="margin-top:50px">
+		<div class="container">
 
-    </div><!-- /.container -->
-    
+		<div class="panel panel-default" style="margin:0 auto;width:500px">
+			<div class="panel-heading">
+				<h2 class="panel-title">Agregar Contacto</h2>
+			</div>
+			
+			<div class="panel-body">
+				<form name="ingreso" action="#" method="post" role="form">
+					<div class="form-group">
+						<label for="name">Nombre</label>
+						<input type="name" class="form-control" id="name" name="name" placeholder="Nombre">
+					</div>
+					
+					<div class="form-group">
+						<label for="ip">Dirección IP</label>
+						<input type="ip" class="form-control" id="ip" name="ip" placeholder="Dirección IP">
+					</div> 
+			  
+					<div class="form-group">
+						<label for="port">Puerto</label>
+						<input type="port" class="form-control" id="port" name="port" placeholder="Puerto">
+					</div>
+
+					<button type="submit" class="btn btn-primary">Guardar</button>
+				</form>
+			</div>
+		</div>
+			
+		</div><!-- /.container -->
+    </div><!-- margin-top -->
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
