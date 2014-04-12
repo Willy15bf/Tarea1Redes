@@ -52,6 +52,7 @@ public class Peticion implements Callable<Void> {
 				System.out.println(fileName);
 				if (fileName.endsWith("/"))
 					fileName += indexFileName;
+				//checquear parametros aqui
 				String contentType = URLConnection.getFileNameMap().getContentTypeFor(fileName);
 				System.out.println(contentType);
 				if (tokens.length > 2) {
