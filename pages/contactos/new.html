@@ -2,10 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
     <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
 
     <title>Agregar Contacto</title>
@@ -14,16 +11,7 @@
     <link href="../css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="../css/starter-template.css" rel="stylesheet">
-
-    <!-- Just for debugging purposes. Don't actually copy this line! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link href="../css/starter-template.css" rel="stylesheet">    
   </head>
 
   <body>
@@ -57,7 +45,7 @@
 			</div>
 			
 			<div class="panel-body">
-				<form name="ingreso" action="#" method="post" role="form">
+				<form name="ingreso" action="/contactos/add" method="post" role="form">
 					<div class="form-group">
 						<label for="name">Nombre</label>
 						<input type="name" class="form-control" id="name" name="name" placeholder="Nombre">
@@ -84,8 +72,8 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="../../dist/js/bootstrap.min.js"></script>
+    <script src="../js/jquery-2.1.0.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
   </body>
 </html>
 

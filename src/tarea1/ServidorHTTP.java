@@ -42,8 +42,7 @@ public class ServidorHTTP {
 		File docroot;
 		int port = 9000;
 		try {
-			docroot = new File("pages");//donde estan las paginas
-			System.out.println(docroot.getPath());
+			docroot = new File("pages");//donde estan las paginas			
 		} catch (ArrayIndexOutOfBoundsException e) {
 			e.printStackTrace();
 			return;

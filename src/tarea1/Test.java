@@ -1,55 +1,55 @@
 package tarea1;
+
 import java.io.*;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
 public class Test {
 
+	public static Map<String, List<String>> getUrlParameters(String url)
+			throws UnsupportedEncodingException {
+		Map<String, List<String>> params = new HashMap<String, List<String>>();
+
+		for (String param : url.split("&")) {
+			String pair[] = param.split("=");
+			String key = URLDecoder.decode(pair[0], "UTF-8");
+			String value = "";
+			if (pair.length > 1) {
+				value = URLDecoder.decode(pair[1], "UTF-8");
+			}
+			List<String> values = params.get(key);
+			if (values == null) {
+				values = new ArrayList<String>();
+				params.put(key, values);
+			}
+			values.add(value);
+		}
+
+		return params;
+	}
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		File contactosFile = new File("data/contactos.json");
-		if(!contactosFile.exists()) {
-			try {
-				contactosFile.createNewFile();
-				FileWriter writer = new FileWriter(contactosFile);
-				List<Contacto> listaContactos = new ArrayList<Contacto>();
-				Contacto nuevoContacto = new Contacto("Ivan Gonzalez", "127.0.0.1", 9000);
-				listaContactos.add(nuevoContacto);
-				Gson gson = new Gson();
-				String jsonNuevoContacto = gson.toJson(listaContactos);
-				writer.write(jsonNuevoContacto);
-				writer.close();
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else {
-			try {
-				FileReader reader = new FileReader(contactosFile);				
-				Gson gson = new Gson();				
-				List<Contacto> listaContactos = gson.fromJson(reader, new TypeToken<List<Contacto>>(){}.getType());
-				reader.close();
-				FileWriter writer = new FileWriter(contactosFile, false);
-				
-				
-				listaContactos.add(new Contacto("Joaquin Gonzalez", "127.5.0.2", 3000));
-				String json = gson.toJson(listaContactos);
-				writer.write(json);
-				writer.close();
-				System.out.println(json);
-				System.out.println(listaContactos);
-				
-				
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} 
-				
+		
+		ContactoJson cj = new ContactoJson(contactosFile);
+		
+		try {
+			List<Contacto> listaContactos = cj.retrieveAll();
+			System.out.println(listaContactos);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+
 	}
 
 }

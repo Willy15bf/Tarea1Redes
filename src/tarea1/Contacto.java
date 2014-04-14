@@ -1,16 +1,28 @@
 package tarea1;
 
 public class Contacto {
+	private int id;
 	private String nombre;
 	private String ip;
 	private int puerto;
 	
-	public Contacto(String nombre, String ip, int puerto) {
+	public Contacto(){}
+	
+	public Contacto(int id, String nombre, String ip, int puerto) {
+		this.id = id;
 		this.nombre = nombre;
 		this.ip = ip;
 		this.puerto = puerto;
 	}	
 	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public String getNombre() {
 		return nombre;
 	}
