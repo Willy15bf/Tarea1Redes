@@ -14,15 +14,18 @@ public class HtmlBuilder {
 		.append("</tr>\r\n")
 		.append("</thead>\r\n")
 		.append("<tbody>\r\n");
-	
-		for(Contacto contacto : listaContactos) {			
-			table.append("<tr>\r\n")
-			.append("<td><a href='/contactos/view.html?id=" + contacto.getId()  + "'>" + contacto.getNombre() + "</a></td>\r\n")
-			.append("<td>" + contacto.getIp() + "</td>\r\n")
-			.append("<td>" + contacto.getPuerto() + "</td>\r\n")
-			.append("</tr>\r\n");		
-					
+		
+		if(!listaContactos.isEmpty()) {
+			for(Contacto contacto : listaContactos) {			
+				table.append("<tr>\r\n")
+				.append("<td><a href='/contactos/view.html?id=" + contacto.getId()  + "'>" + contacto.getNombre() + "</a></td>\r\n")
+				.append("<td>" + contacto.getIp() + "</td>\r\n")
+				.append("<td>" + contacto.getPuerto() + "</td>\r\n")
+				.append("</tr>\r\n");		
+						
+			}
 		}
+		
 		table.append("</tbody>\r\n</table>\r\n");		
 		
 		return table.toString();
