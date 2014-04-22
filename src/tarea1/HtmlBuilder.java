@@ -73,6 +73,8 @@ public class HtmlBuilder {
 			.append("\r\n")
 			.append("<link href='assets/css/bootstrap.min.css' rel='stylesheet'>")
 			.append("\r\n")
+			.append("<link href='assets/css/bootstrap-theme.min.css' rel='stylesheet'>")
+			.append("\r\n")
 			.append("<link href='assets/css/starter-template.css' rel='stylesheet'>")
 			.append("\r\n")
 			.append("<link href='assets/css/custom.css' rel='stylesheet'>");
@@ -80,6 +82,8 @@ public class HtmlBuilder {
 			header.append("<link rel='shortcut icon' href='../assets/ico/favicon.ico'>")
 			.append("\r\n")
 			.append("<link href='../assets/css/bootstrap.min.css' rel='stylesheet'>")
+			.append("\r\n")
+			.append("<link href='../assets/css/bootstrap-theme.min.css' rel='stylesheet'>")
 			.append("\r\n")
 			.append("<link href='../assets/css/starter-template.css' rel='stylesheet'>")
 			.append("\r\n")

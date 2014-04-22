@@ -1,49 +1,11 @@
-.navbar .nav > li > a {
-  color:  #000;
+body {
+	background: url('../img/background-pp.png') no-repeat fixed;
+	-webkit-background-size: contain;
+  	-moz-background-size: contain;
+  	-o-background-size: contain;
+  	background-size: contain;
+  	-webkit-background-position: right;
+  	-moz-background-position: right;
+  	-o-background-position: right;
+  	background-position: right;
 }
-
-navbar .nav > li > a:focus,
-.navbar .nav > li > a:hover {
-
-color: #fff;
-} 
-.navbar .nav > .active > a,
-.navbar .nav > .active > a:hover,
-.navbar .nav > .active > a:focus {
-
-color: #000;
-} 
-
-.panel-default > .panel-heading {
-background-color: #88AABB;
-}
-
-.col-md-8 {
-color: #555;
-border-color: #FFF;
-}
-
-.panel-primary {
-    border-color: #DDD;
-}
-
-.btn-primary, .btn-primary:hover{
-background-color: #88AABB;
-border-color: #88AABB;
-color: #fff;
-}
-
-a.list-group-item.active, a.list-group-item.active:hover, a.list-group-item.active:focus {
-background-color: #88AABB;
-border-color: #88AABB;
-color: #fff;
-}
-
-.panel-primary > .panel-heading {
-background-color: #88AABB;
-border-color: #88AABB;
-color: #fff;
-}
-
-
-

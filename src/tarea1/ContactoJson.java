@@ -1,7 +1,9 @@
 package tarea1;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
@@ -29,14 +31,21 @@ public class ContactoJson {
 		
 	}
 	
-	public List<Contacto> retrieveAll() throws IOException {
-		List<Contacto> listaContactos = null;
+	public List<Contacto> retrieveAll() {
+		List<Contacto> listaContactos = Collections.<Contacto>emptyList();
 		FileReader reader = null;
-		reader = new FileReader(contactosFile);
-		Gson gson = new Gson();
-		listaContactos = gson.fromJson(reader, new TypeToken<List<Contacto>>(){}.getType());
-		reader.close();
-		return listaContactos;
+		try {
+			reader = new FileReader(contactosFile);
+			Gson gson = new Gson();
+			listaContactos = gson.fromJson(reader, new TypeToken<List<Contacto>>(){}.getType());
+			reader.close();
+			return listaContactos;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return listaContactos;
+		}
+		
 		
 	}
 	

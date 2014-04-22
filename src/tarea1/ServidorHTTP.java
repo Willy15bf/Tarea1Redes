@@ -41,12 +41,7 @@ public class ServidorHTTP {
 	public static void main(String[] args) {
 		File docroot;
 		int port = 9000;
-		try {
-			docroot = new File("pages");//donde estan las paginas			
-		} catch (IOException e) {
-			e.printStackTrace();
-			return;
-		}
+		docroot = new File("pages");//donde estan las paginas			
 				
 		try {
 			ServidorHTTP servidorWeb = new ServidorHTTP(docroot, port);

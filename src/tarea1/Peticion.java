@@ -85,7 +85,13 @@ public class Peticion implements Callable<Void> {
 							String index = new StringBuilder(
 									HtmlBuilder.createPageHeader(
 											"Lista de contactos", false))
-									.append("<row>")
+									.append("<row>")									
+									.append("\r\n")
+									.append("<div class='page-header'>")
+									.append("\r\n")
+									.append("<h1>Lista de contactos</h1>")
+									.append("\r\n")
+									.append("</div>")
 									.append("\r\n")
 									.append(table)
 									.append("</row>")
@@ -129,6 +135,12 @@ public class Peticion implements Callable<Void> {
 											HtmlBuilder.createPageHeader(
 													"Ver perfil", false))
 											.append("<row>")
+											.append("\r\n")
+											.append("<div class='page-header'>")
+											.append("\r\n")
+											.append("<h1>Ver perfil de contacto</h1>")
+											.append("\r\n")
+											.append("</div>")
 											.append("\r\n")
 											.append(perfil)
 											.append("</row>")
