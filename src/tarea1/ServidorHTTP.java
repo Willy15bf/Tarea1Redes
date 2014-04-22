@@ -43,7 +43,7 @@ public class ServidorHTTP {
 		int port = 9000;
 		try {
 			docroot = new File("pages");//donde estan las paginas			
-		} catch (ArrayIndexOutOfBoundsException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			return;
 		}

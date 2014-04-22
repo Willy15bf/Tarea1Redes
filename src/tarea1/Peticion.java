@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-//import java.util.Scanner;
 import java.util.concurrent.Callable;
 
 public class Peticion implements Callable<Void> {
@@ -103,8 +102,7 @@ public class Peticion implements Callable<Void> {
 
 						} else if (fileName.equals("view.html")) {
 							if (urlParts.length == 2) { // tiene parametros
-								Map<String, List<String>> params = getUrlParameters(queryString);
-								System.out.println(params);
+								Map<String, List<String>> params = getUrlParameters(queryString);								
 								int contactoId = Integer.parseInt(params.get(
 										"id").get(0));
 								ContactoJson cj = new ContactoJson(
@@ -232,12 +230,8 @@ public class Peticion implements Callable<Void> {
 					version = tokens[2];
 				}
 				
-				if (action.startsWith("/contactos/")) {
-					System.out.println("/contactos/");
-					if (action.endsWith("add")) {
-						System.out.println("add");
-						
-						
+				if (action.startsWith("/contactos/")) {					
+					if (action.endsWith("new.html")) {												
 						ContactoJson cj = new ContactoJson(contactosFile);
 						Contacto nuevoContacto = new Contacto();
 						nuevoContacto.setNombre(params.get("name").get(0));
