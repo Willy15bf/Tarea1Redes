@@ -40,14 +40,27 @@ public class ServidorHTTP {
 	
 	public static void main(String[] args) {
 		File docroot;
-		int port = 9000;
+		int port;
 		docroot = new File("pages");//donde estan las paginas			
+
+		try {
+			port = Integer.parseInt(args[0]);
+			if(port < 0 || port > 65535) {
+				port = 8080;//puerto por defecto
+			}
+			
+		} catch(RuntimeException e) {
+			port = 8080;
+			
+		}
+		
 				
 		try {
 			ServidorHTTP servidorWeb = new ServidorHTTP(docroot, port);
 			servidorWeb.start();
-		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("Servidor escuchando en el puerto: " + port);
+		} catch (IOException e) {			
+			System.out.println("El servidor no pudo iniciar");
 		}
 					
 	}
