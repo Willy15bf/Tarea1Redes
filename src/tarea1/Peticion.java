@@ -236,8 +236,6 @@ public class Peticion implements Callable<Void> {
 				String[] urlParts = queryString.split("\\?");
 				String action = urlParts[0];
 
-				System.out.println(action);
-
 				if (tokens.length > 2) {
 					version = tokens[2];
 				}
@@ -250,10 +248,8 @@ public class Peticion implements Callable<Void> {
 						nuevoContacto.setIp(params.get("ip").get(0));
 						nuevoContacto.setPuerto(Integer.parseInt(params.get(
 								"port").get(0)));
-						cj.save(nuevoContacto);
-						
-						//comprobar si se guarda correctamente
-						
+						cj.save(nuevoContacto);						
+												
 						String responsePage = new StringBuilder(
 								HtmlBuilder.createPageHeader(
 										"Contacto agregado con éxito", false))
@@ -323,7 +319,7 @@ public class Peticion implements Callable<Void> {
 		out.write(responseCode + "\r\n");
 		Date now = new Date();
 		out.write("Date: " + now + "\r\n");
-		out.write("Servidor:ServidorHTTP  2.0\r\n");
+		out.write("Servidor:ServidorHTTP  1.0\r\n");
 		out.write("Content-length: " + length + "\r\n");
 		out.write("Content-type: " + contentType + "\r\n\r\n");
 		out.flush();

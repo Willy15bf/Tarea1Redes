@@ -50,7 +50,7 @@ public class ContactoJson {
 	}
 	
 	public void save(Contacto nuevoContacto) {
-		//aqui determinar el id del nuevo contacto
+		
 		if(!contactosFile.exists()) {
 			try {
 				contactosFile.createNewFile();
