@@ -23,11 +23,12 @@ public class ServidorHTTP {
 
 	public void start() throws IOException{
 		ExecutorService pool = Executors.newFixedThreadPool(NUM_THREADS);
-		try (ServerSocket server = new ServerSocket(port)) {			
+		try (ServerSocket server = new ServerSocket(port)) {
+			//Socket chatSocket = new Socket("127.0.0.1", 9000);
 			while (true) {
 				try {
 					Socket request = server.accept();
-					pool.submit(new Peticion(rootDirectory, INDEX_FILE, request));
+					Future<Void> future = pool.submit(new Peticion(rootDirectory, INDEX_FILE, request));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

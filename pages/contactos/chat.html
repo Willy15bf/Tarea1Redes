@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" href="../assets/ico/favicon.ico">
+
+	<title>Chat</title>
+
+	<!-- Bootstrap core CSS -->
+	<link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="../assets/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="../assets/css/starter-template.css">
+	<link rel="stylesheet" href="../assets/css/custom.css">  
+	<link rel="stylesheet" href="../assets/css/chat.css">   
+  </head>
+
+  <body>
+
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	  <div class="container">
+		<div class="navbar-header">
+		  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		  </button>
+		  <a class="navbar-brand" href="../index.html">Avioncito de papel I</a>
+		</div>
+		<div class="collapse navbar-collapse">
+		  <ul class="nav navbar-nav">
+			<li><a href="index.html">Ver contactos</a></li>
+			<li class="active"><a href="new.html">Agregar contactos</a></li>
+		  </ul>
+		</div><!--/.nav-collapse -->
+	  </div>
+	</nav>    
+	<div class="container">
+		<div class="row">
+		<div class="page-header">
+			<h1>Chat</h1>
+		</div>
+		<div class="col-md-5">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-comment"></span> Chat
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-chevron-down"></span>
+                        </button>
+                        <ul class="dropdown-menu slidedown">
+                            <li><a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-refresh">
+                            </span>Refresh</a></li>
+                            <li><a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-ok-sign">
+                            </span>Available</a></li>
+                            <li><a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-remove">
+                            </span>Busy</a></li>
+                            <li><a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-time"></span>
+                                Away</a></li>
+                            <li class="divider"></li>
+                            <li><a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-off"></span>
+                                Sign Out</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <ul class="chat">
+                        <li class="left clearfix"><span class="chat-img pull-left">
+                            <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
+                        </span>
+                            <div class="chat-body clearfix">
+                                <div class="header">
+                                    <strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">
+                                        <span class="glyphicon glyphicon-time"></span>12 mins ago</small>
+                                </div>
+                                <p>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                    dolor, quis ullamcorper ligula sodales.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="right clearfix"><span class="chat-img pull-right">
+                            <img src="http://placehold.it/50/FA6F57/fff&text=ME" alt="User Avatar" class="img-circle" />
+                        </span>
+                            <div class="chat-body clearfix">
+                                <div class="header">
+                                    <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>13 mins ago</small>
+                                    <strong class="pull-right primary-font">Bhaumik Patel</strong>
+                                </div>
+                                <p>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                    dolor, quis ullamcorper ligula sodales.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="left clearfix"><span class="chat-img pull-left">
+                            <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
+                        </span>
+                            <div class="chat-body clearfix">
+                                <div class="header">
+                                    <strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">
+                                        <span class="glyphicon glyphicon-time"></span>14 mins ago</small>
+                                </div>
+                                <p>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                    dolor, quis ullamcorper ligula sodales.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="right clearfix"><span class="chat-img pull-right">
+                            <img src="http://placehold.it/50/FA6F57/fff&text=ME" alt="User Avatar" class="img-circle" />
+                        </span>
+                            <div class="chat-body clearfix">
+                                <div class="header">
+                                    <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>15 mins ago</small>
+                                    <strong class="pull-right primary-font">Bhaumik Patel</strong>
+                                </div>
+                                <p>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                    dolor, quis ullamcorper ligula sodales.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="panel-footer">
+                    <div class="input-group">
+                        <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
+                        <span class="input-group-btn">
+                            <button class="btn btn-warning btn-sm" id="btn-chat">
+                                Send</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+		
+	    </div>    
+	</div><!-- /.container -->
+	<!-- Bootstrap core JavaScript
+	================================================== -->
+	<!-- Placed at the end of the document so the pages load faster -->
+	<script src="../assets/js/jquery-2.1.0.min.js"></script>
+	<script src="../assets/js/bootstrap.min.js"></script>
+	<script src="../assets/js/jquery.validate.min.js"></script>
+	<script src="../assets/js/additional-methods.min.js"></script>
+	<script>
+	  $(document).ready(function(){
+		$('#ContactoAddForm').validate({
+		  errorElement: 'span',
+		  errorClass: 'help-block error-color',
+		  focusInvalid: true,
+			  onclick: false,             
+		  rules: {
+			"name": {
+			  required: true,
+			},  
+			"ip": {
+			  required: true,
+			  validIP: true
+			},
+			"port": {
+			  required: true,
+			  number: true
+			}
+			
+		  },
+		  messages: {
+			"name": {
+			  required: 'Ingrese un nombre',
+			},    
+			"ip": {
+			  required: 'Ingrese una dirección IP',
+			},
+			"port": {
+			  required: 'Ingrese un número de puerto',
+			  number: 'Debe ser un número'
+			}
+			
+		  },
+		  highlight: function(element) {
+			$(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+			},
+			success: function (element) {
+			$(element).remove();
+		  },
+		  unhighlight: function(element) {
+			$(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+		  }         
+			  
+		}); 
+
+		$.validator.addMethod('validIP', function(value) {
+			var split = value.split('.');
+			if (split.length != 4) 
+				return false;
+					
+			for (var i=0; i<split.length; i++) {
+				var s = split[i];
+				if (s.length==0 || isNaN(s) || s<0 || s>255)
+					return false;
+			}
+			return true;
+		}, 'Dirección IP no válida');   
+	  
+	  });
+	  
+	</script>
+  </body>
+</html>
+
