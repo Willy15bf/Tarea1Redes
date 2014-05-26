@@ -169,7 +169,93 @@ public class Peticion implements Callable<Void> {
 								out.write(body);
 								out.flush();
 							}// fin if si tiene parametros el query string
-						} else if (fileName.equals("new.html")) {
+						} 
+						
+						
+						
+						
+						
+						
+						else if (fileName.equals("chat.html")) {
+							if (urlParts.length == 2) { // tiene parametros
+								Map<String, List<String>> params = getUrlParameters(queryString);								
+								int contactoId = Integer.parseInt(params.get(
+										"id").get(0));
+								ContactoJson cj = new ContactoJson(
+										contactosFile);
+								Contacto contacto = cj.retriveOne(contactoId);
+
+								if (contacto == null) {
+									String body = HtmlBuilder.errorPage(404,
+											"File Not Found");
+									if (version.startsWith("HTTP/")) {
+										sendHeader(out,
+												"HTTP/1.1 404 Not Found",
+												"text/html; charset=utf-8",
+												body.length());
+									}
+									out.write(body);
+									out.flush();
+								} else {
+									// construir la pagina del chat
+									String perfil = HtmlBuilder
+											.createChat(contacto);
+									String view = new StringBuilder(
+											HtmlBuilder.createPageHeader(
+													"Ver perfil", false))
+											.append("<row>")
+											.append("\r\n")
+											.append("<div class='page-header'>")
+											.append("\r\n")
+											.append("<h1>Chat</h1>")
+											.append("\r\n")
+											.append("</div>")
+											.append("\r\n")
+											.append(perfil)
+											.append("</row>")
+											.append(HtmlBuilder
+													.createPageFooter(false))
+											.toString();
+
+									if (version.startsWith("HTTP/")) {
+										sendHeader(out, "HTTP/1.1 200 OK",
+												contentType, view.length());
+									}
+
+									out.write(view);
+									out.flush();
+
+								}
+
+							} else {// else si tiene parametros el query string
+								String body = HtmlBuilder.errorPage(404,
+										"File Not Found");
+								if (version.startsWith("HTTP/")) {
+									sendHeader(out, "HTTP/1.1 404 Not Found",
+											"text/html; charset=utf-8",
+											body.length());
+								}
+								out.write(body);
+								out.flush();
+							}// fin if si tiene parametros el query string
+						}
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+							else if (fileName.equals("new.html")) {
 							byte[] theData = Files.readAllBytes(theFile
 									.toPath());
 							if (version.startsWith("HTTP/")) {

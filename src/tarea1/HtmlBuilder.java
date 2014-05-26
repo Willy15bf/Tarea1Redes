@@ -11,6 +11,7 @@ public class HtmlBuilder {
 		.append("<th>Nombre</th>\r\n")
 		.append("<th>Dirección IP</th>\r\n")
 		.append("<th>Puerto</th>\r\n")
+		.append("<th>Chat</th>\r\n")
 		.append("</tr>\r\n")
 		.append("</thead>\r\n")
 		.append("<tbody>\r\n");
@@ -21,6 +22,7 @@ public class HtmlBuilder {
 				.append("<td><a href='/contactos/view.html?id=" + contacto.getId()  + "'>" + contacto.getNombre() + "</a></td>\r\n")
 				.append("<td>" + contacto.getIp() + "</td>\r\n")
 				.append("<td>" + contacto.getPuerto() + "</td>\r\n")
+				.append("<td><a href='/contactos/chat.html?id=" + contacto.getId()  + "'>" + "Iniciar" + "</a></td>\r\n")
 				.append("</tr>\r\n");		
 						
 			}
@@ -53,6 +55,36 @@ public class HtmlBuilder {
 		return perfil.toString();
 		
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	public static String createChat(Contacto contacto) {		
+		StringBuilder chat = new StringBuilder("<div class='panel panel-primary'>\r\n")
+		.append("<div class='panel-heading'>\r\n")
+		
+		
+		
+		
+		.append("</div>\r\n")
+		.append("</div>\r\n");		
+		
+		return chat.toString();
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	public static String createPageHeader(String title, boolean rootIndex) {
 		StringBuilder header = new StringBuilder("<!DOCTYPE html>")
