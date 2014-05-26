@@ -202,7 +202,7 @@ public class Peticion implements Callable<Void> {
 											.createChat(contacto);
 									String view = new StringBuilder(
 											HtmlBuilder.createPageHeader(
-													"Ver perfil", false))
+													"Chat", false))
 											.append("<row>")
 											.append("\r\n")
 											.append("<div class='page-header'>")

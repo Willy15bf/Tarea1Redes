@@ -61,17 +61,35 @@ public class HtmlBuilder {
 	
 	
 	
-	
+	//////////
 	
 	public static String createChat(Contacto contacto) {		
-		StringBuilder chat = new StringBuilder("<div class='panel panel-primary'>\r\n")
+		StringBuilder chat = new StringBuilder("<div class='col-md-5'>\r\n")
+		.append("<div class='panel panel-primary'>\r\n")
 		.append("<div class='panel-heading'>\r\n")
-		
-		
-		
-		
 		.append("</div>\r\n")
-		.append("</div>\r\n");		
+		
+		.append("<div class='panel-body'>\r\n")
+
+		.append("<h2>Pedro</h2>\r\n")
+		.append("<p>Hola Juan</p>\r\n")
+		
+		.append("<h2>Juan</h2>\r\n")
+		.append("<p>Hola Pedro</p>\r\n")
+		
+		.append("<div class='panel-footer'>\r\n")
+                    .append("<div class='input-group'>\r\n")
+                        .append("<input id='btn-input' type='text' class='form-control input-sm' placeholder='Escriba su mensaje aca...' />\r\n")
+                        .append("<span class='input-group-btn'>\r\n")
+                            .append("<button class='btn btn-warning btn-sm' id='btn-chat'> Enviar</button>\r\n")
+                        .append("</span>\r\n")
+                    .append("</div>\r\n")
+        .append("</div>\r\n")        
+		
+		
+		
+		.append("</div>\r\n")		
+		.append("</div>\r\n");
 		
 		return chat.toString();
 		
@@ -83,7 +101,7 @@ public class HtmlBuilder {
 	
 	
 	
-	
+	////////////////
 	
 	
 	public static String createPageHeader(String title, boolean rootIndex) {
