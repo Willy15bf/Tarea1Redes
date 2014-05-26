@@ -71,12 +71,12 @@ public class HtmlBuilder {
 		
 		.append("<div class='panel-body'>\r\n")
 
-		.append("<h2>Pedro</h2>\r\n")
+		.append("<h2>Yo</h2>\r\n")
 		.append("<p>Hola Juan</p>\r\n")
 		
 		.append("<h2>Juan</h2>\r\n")
 		.append("<p>Hola Pedro</p>\r\n")
-		
+		.append("</div>\r\n")	
 		.append("<div class='panel-footer'>\r\n")
                     .append("<div class='input-group'>\r\n")
                         .append("<input id='btn-input' type='text' class='form-control input-sm' placeholder='Escriba su mensaje aca...' />\r\n")
@@ -88,7 +88,7 @@ public class HtmlBuilder {
 		
 		
 		
-		.append("</div>\r\n")		
+			
 		.append("</div>\r\n");
 		
 		return chat.toString();
