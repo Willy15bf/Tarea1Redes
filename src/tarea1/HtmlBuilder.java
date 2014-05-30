@@ -11,6 +11,7 @@ public class HtmlBuilder {
 		.append("<th>Nombre</th>\r\n")
 		.append("<th>Dirección IP</th>\r\n")
 		.append("<th>Puerto</th>\r\n")
+		.append("<th>Chat</th>\r\n")
 		.append("</tr>\r\n")
 		.append("</thead>\r\n")
 		.append("<tbody>\r\n");
@@ -21,6 +22,7 @@ public class HtmlBuilder {
 				.append("<td><a href='/contactos/view.html?id=" + contacto.getId()  + "'>" + contacto.getNombre() + "</a></td>\r\n")
 				.append("<td>" + contacto.getIp() + "</td>\r\n")
 				.append("<td>" + contacto.getPuerto() + "</td>\r\n")
+				.append("<td><a href='/contactos/chat.html?id=" + contacto.getId()  + "'>" + "Iniciar" + "</a></td>\r\n")
 				.append("</tr>\r\n");		
 						
 			}
@@ -112,9 +114,9 @@ public class HtmlBuilder {
 		.append("\r\n");
 		
 		if(rootIndex) {
-			header.append("<a class='navbar-brand' href='index.html'>Avioncito de papel I</a>");
+			header.append("<a class='navbar-brand' href='index.html'>Avioncito de papel II</a>");
 		} else {
-			header.append("<a class='navbar-brand' href='../index.html'>Avioncito de papel I</a>");
+			header.append("<a class='navbar-brand' href='../index.html'>Avioncito de papel II</a>");
 		}		
 		
 		header.append("\r\n")

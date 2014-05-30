@@ -171,9 +171,9 @@ public class Peticion implements Callable<Void> {
 								out.write(body);
 								out.flush();
 							}// fin if si tiene parametros el query string
+
 						} else if (fileName.equals("new.html") || fileName.equals("chat.html")) {
-							byte[] theData = Files.readAllBytes(theFile
-									.toPath());
+							byte[] theData = Files.readAllBytes(theFile.toPath());
 							if (version.startsWith("HTTP/")) {
 								sendHeader(out, "HTTP/1.1 200 OK", contentType,
 										theData.length);
