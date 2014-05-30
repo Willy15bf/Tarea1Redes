@@ -3,12 +3,16 @@ package tarea1;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
+import org.apache.commons.io.FilenameUtils;
+
 import com.google.gson.*;
 
 public class Peticion implements Callable<Void> {
@@ -68,7 +72,13 @@ public class Peticion implements Callable<Void> {
 				}
 				File theFile = new File(rootDirectory, pathName.substring(1,
 						pathName.length()));
+				String ext = FilenameUtils.getExtension(theFile.getAbsolutePath());
 				
+				if(ext.equals("js")) {
+					contentType = "application/x-javascript";
+				} else if (ext.equals("css")) {
+					contentType = "text/css";
+				}
 				
 				if (theFile.canRead()
 						&& theFile.getCanonicalPath().startsWith(root)) {
