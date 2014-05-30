@@ -1,1 +1,1 @@
-[{"id":1,"nombre":"juanito perz","ip":"127.1.1.0","puerto":9000}]
+[{"id":1,"nombre":"juanito perz","ip":"127.1.1.0","puerto":9000},{"id":2,"nombre":"nuevo contacto","ip":"127.0.0.1","puerto":15000},{"id":3,"nombre":"ivan","ip":"127.0.0.1","puerto":19654},{"id":4,"nombre":"fasdf","ip":"127.0.0.1","puerto":9652}]

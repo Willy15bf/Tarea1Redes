@@ -28,7 +28,7 @@ public class ServidorHTTP {
 			while (true) {
 				try {
 					Socket request = server.accept();
-					Future<Void> future = pool.submit(new Peticion(rootDirectory, INDEX_FILE, request));
+					pool.submit(new Peticion(rootDirectory, INDEX_FILE, request));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

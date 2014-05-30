@@ -128,11 +128,15 @@ public class HtmlBuilder {
 		if(rootIndex) {
 			header.append("<li><a href='contactos/index.html'>Ver contactos</a></li>")
 			.append("\r\n")
-			.append("<li><a href='contactos/new.html'>Agregar contactos</a></li>");
+			.append("<li><a href='contactos/new.html'>Agregar contactos</a></li>")
+			.append("\r\n")
+			.append("<li><a href='contactos/chat.html'>Chat</a></li>");
 		} else {
 			header.append("<li><a href='index.html'>Ver contactos</a></li>")
 			.append("\r\n")
-			.append("<li><a href='new.html'>Agregar contactos</a></li>");
+			.append("<li><a href='new.html'>Agregar contactos</a></li>")
+			.append("\r\n")
+			.append("<li><a href='chat.html'>Chat</a></li>");
 		}
 		
 		

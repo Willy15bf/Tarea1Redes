@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import com.google.gson.*;
 
 public class Peticion implements Callable<Void> {
 
@@ -67,7 +68,8 @@ public class Peticion implements Callable<Void> {
 				}
 				File theFile = new File(rootDirectory, pathName.substring(1,
 						pathName.length()));
-
+				
+				
 				if (theFile.canRead()
 						&& theFile.getCanonicalPath().startsWith(root)) {
 
@@ -169,7 +171,7 @@ public class Peticion implements Callable<Void> {
 								out.write(body);
 								out.flush();
 							}// fin if si tiene parametros el query string
-						} else if (fileName.equals("new.html")) {
+						} else if (fileName.equals("new.html") || fileName.equals("chat.html")) {
 							byte[] theData = Files.readAllBytes(theFile
 									.toPath());
 							if (version.startsWith("HTTP/")) {
@@ -214,6 +216,8 @@ public class Peticion implements Callable<Void> {
 				int contentLength = 0;
 				String line;
 				String contentLengthHeader = "Content-Length: ";
+				
+				System.out.println("llego el request");
 
 				while (!(line = in.readLine()).equals("")) {
 					if (line.startsWith(contentLengthHeader)) {
@@ -267,7 +271,17 @@ public class Peticion implements Callable<Void> {
 						}
 						out.write(responsePage);
 						out.flush();
-
+					} else if(action.endsWith("sendmessage")) {
+						System.out.println(bodyRequest
+								.toString());
+						JsonObject jsonData = new JsonObject();
+						jsonData.addProperty("response", "success");						
+												
+						if (version.startsWith("HTTP/")) {
+							sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
+						}
+						out.write(jsonData.toString());
+						out.flush();
 					} else {
 						String body = HtmlBuilder.errorPage(404, "Not Found");
 						if (version.startsWith("HTTP/")) {
