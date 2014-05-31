@@ -9,9 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
+import org.apache.commons.io.FilenameUtils;
 import com.google.gson.*;
-
 import chat.Message;
 
 public class Peticion implements Callable<Message> {
@@ -71,7 +70,13 @@ public class Peticion implements Callable<Message> {
 				}
 				File theFile = new File(rootDirectory, pathName.substring(1,
 						pathName.length()));
+				String ext = FilenameUtils.getExtension(theFile.getAbsolutePath());
 				
+				if(ext.equals("js")) {
+					contentType = "application/x-javascript";
+				} else if (ext.equals("css")) {
+					contentType = "text/css";
+				}
 				
 				if (theFile.canRead()
 						&& theFile.getCanonicalPath().startsWith(root)) {
