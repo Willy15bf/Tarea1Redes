@@ -9,15 +9,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
 import com.google.gson.*;
 
-public class Peticion implements Callable<Void> {
+import chat.Message;
+
+public class Peticion implements Callable<Message> {
 
 	private final Socket connection;
 	private File rootDirectory;
 	private String indexFileName = "index.html";
 	private static final String contactosFilePath = "data/contactos.json";
-
+	
 	Peticion(File rootDirectory, String indexFileName, Socket connection) {
 		if (rootDirectory.isFile()) {
 			throw new IllegalArgumentException(
@@ -30,12 +33,12 @@ public class Peticion implements Callable<Void> {
 		this.rootDirectory = rootDirectory;
 		if (indexFileName != null)
 			this.indexFileName = indexFileName;
-		this.connection = connection;
+		this.connection = connection;		
 
 	}
 
 	@Override
-	public Void call() throws Exception {
+	public Message call() throws Exception {
 		// TODO Auto-generated method stub
 		String root = rootDirectory.getPath();
 		File contactosFile = new File(contactosFilePath);
@@ -217,7 +220,7 @@ public class Peticion implements Callable<Void> {
 				String line;
 				String contentLengthHeader = "Content-Length: ";
 				
-				System.out.println("llego el request");
+				//System.out.println("llego el request");
 
 				while (!(line = in.readLine()).equals("")) {
 					if (line.startsWith(contentLengthHeader)) {
@@ -272,16 +275,21 @@ public class Peticion implements Callable<Void> {
 						out.write(responsePage);
 						out.flush();
 					} else if(action.endsWith("sendmessage")) {
-						System.out.println(bodyRequest
-								.toString());
+						//System.out.println(bodyRequest.toString());
 						JsonObject jsonData = new JsonObject();
-						jsonData.addProperty("response", "success");						
-												
+						jsonData.addProperty("response", "success");	
+						
+						
+						Message chatMessage = new Message();
+						chatMessage.setType(Message.MESSAGE);
+						chatMessage.setMessage(params.get("body").get(0));						
 						if (version.startsWith("HTTP/")) {
 							sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
 						}
 						out.write(jsonData.toString());
 						out.flush();
+						return chatMessage;
+						
 					} else {
 						String body = HtmlBuilder.errorPage(404, "Not Found");
 						if (version.startsWith("HTTP/")) {
