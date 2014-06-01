@@ -3,24 +3,22 @@ package tarea1;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import org.apache.commons.io.FilenameUtils;
 import com.google.gson.*;
 import chat.Message;
 
-public class Peticion implements Callable<Message> {
+public class HttpRequestHandler implements Callable<Message> {
 
 	private final Socket connection;
 	private File rootDirectory;
 	private String indexFileName = "index.html";
 	private static final String contactosFilePath = "data/contactos.json";
+	private BlockingQueue<Message> messagesQueue;
 	
-	Peticion(File rootDirectory, String indexFileName, Socket connection) {
+	HttpRequestHandler(File rootDirectory, String indexFileName, Socket connection, BlockingQueue<Message> messagesQueue) {
 		if (rootDirectory.isFile()) {
 			throw new IllegalArgumentException(
 					"rootDirectory debe ser un directorio, no un archivo");
@@ -32,7 +30,8 @@ public class Peticion implements Callable<Message> {
 		this.rootDirectory = rootDirectory;
 		if (indexFileName != null)
 			this.indexFileName = indexFileName;
-		this.connection = connection;		
+		this.connection = connection;	
+		this.messagesQueue = messagesQueue;
 
 	}
 
@@ -58,8 +57,6 @@ public class Peticion implements Callable<Message> {
 					queryString += indexFileName;
 				}
 
-				// Separar query string entre el archivo requerido y los
-				// posibles parametros enviados
 				String[] urlParts = queryString.split("\\?");
 				String pathName = urlParts[0];
 
@@ -88,8 +85,8 @@ public class Peticion implements Callable<Message> {
 						if (fileName.equals("index.html")) {
 							// obtener todos los contactos y mostrarlos por la
 							// tabla
-							ContactoJson cj = new ContactoJson(contactosFile);
-							List<Contacto> listaContactos = cj.retrieveAll();
+							ContactJson cj = new ContactJson(contactosFile);
+							List<Contact> listaContactos = cj.retrieveAll();
 							String table = HtmlBuilder
 									.createContactsTable(listaContactos);
 							String index = new StringBuilder(
@@ -121,9 +118,9 @@ public class Peticion implements Callable<Message> {
 								Map<String, List<String>> params = getUrlParameters(queryString);								
 								int contactoId = Integer.parseInt(params.get(
 										"id").get(0));
-								ContactoJson cj = new ContactoJson(
+								ContactJson cj = new ContactJson(
 										contactosFile);
-								Contacto contacto = cj.retriveOne(contactoId);
+								Contact contacto = cj.retriveOne(contactoId);
 
 								if (contacto == null) {
 									String body = HtmlBuilder.errorPage(404,
@@ -254,8 +251,8 @@ public class Peticion implements Callable<Message> {
 				
 				if (action.startsWith("/contactos/")) {					
 					if (action.endsWith("new.html")) {												
-						ContactoJson cj = new ContactoJson(contactosFile);
-						Contacto nuevoContacto = new Contacto();
+						ContactJson cj = new ContactJson(contactosFile);
+						Contact nuevoContacto = new Contact();
 						nuevoContacto.setNombre(params.get("name").get(0));
 						nuevoContacto.setIp(params.get("ip").get(0));
 						nuevoContacto.setPuerto(Integer.parseInt(params.get(
@@ -280,14 +277,12 @@ public class Peticion implements Callable<Message> {
 						out.write(responsePage);
 						out.flush();
 					} else if(action.endsWith("sendmessage")) {
-						//System.out.println(bodyRequest.toString());
+					
 						JsonObject jsonData = new JsonObject();
-						jsonData.addProperty("response", "success");	
-						
-						
+						jsonData.addProperty("response", "success");						
 						Message chatMessage = new Message();
 						chatMessage.setType(Message.MESSAGE);
-						chatMessage.setMessage(params.get("body").get(0));						
+						chatMessage.setMessage(params.get("message").get(0));						
 						if (version.startsWith("HTTP/")) {
 							sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
 						}
@@ -295,6 +290,17 @@ public class Peticion implements Callable<Message> {
 						out.flush();
 						return chatMessage;
 						
+					} else if(action.endsWith("getmessages")) {
+						List<Message> messageList = new ArrayList<Message>();
+						if(!messagesQueue.isEmpty()) {
+							messageList.add(messagesQueue.take());
+						}						
+						String jsonData = new Gson().toJson(messageList);
+						if (version.startsWith("HTTP/")) {
+							sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
+						}
+						out.write(jsonData.toString());
+						out.flush();
 					} else {
 						String body = HtmlBuilder.errorPage(404, "Not Found");
 						if (version.startsWith("HTTP/")) {

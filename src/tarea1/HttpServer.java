@@ -5,24 +5,24 @@ import java.util.concurrent.*;
 
 import chat.Message;
 
-public class ServidorHTTP {	
+public class HttpServer {	
 	
-	private static final int NUM_THREADS = 10;
+	private static final int NUM_THREADS = 20;
 	private static final String INDEX_FILE = "index.html";	
 	private final File rootDirectory;
 	private final int port;
-	private ExecutorService pool;
+	private ExecutorService httpRequests;	
 	//Para trabajar con tcp chat server
 	private Socket chatConnection;
-	//private ObjectInputStream inStream;
     private ObjectOutputStream outStream;
     private int chatPort;
     private String chatServer;
     private Message message;
-
+    private ExecutorService listener;
+    protected BlockingQueue<Message> messagesQueue;
 
 	
-	public ServidorHTTP(File rootDirectory, int port, String chatServer, int chatPort) throws IOException {
+	public HttpServer(File rootDirectory, int port, String chatServer, int chatPort) throws IOException {
 		if (!rootDirectory.isDirectory()) {
 			throw new IOException("No existe el directorio " + rootDirectory);
 		}
@@ -34,17 +34,19 @@ public class ServidorHTTP {
 	}	
 
 	public void start() throws IOException{
-		this.pool = Executors.newFixedThreadPool(NUM_THREADS);
+		httpRequests = Executors.newFixedThreadPool(NUM_THREADS);
+		listener = Executors.newSingleThreadExecutor();
+		messagesQueue = new LinkedBlockingQueue<Message>();
 		try (ServerSocket server = new ServerSocket(port)) {
 			
-			this.chatConnection = new Socket(this.chatServer, this.chatPort);
-			//this.inStream = new ObjectInputStream(this.chatConnection.getInputStream());
-			this.outStream = new ObjectOutputStream(this.chatConnection.getOutputStream());
+			chatConnection = new Socket(chatServer, chatPort);
+			outStream = new ObjectOutputStream(chatConnection.getOutputStream());			
+			listener.submit(new MessagesListener(chatConnection, messagesQueue));
 			
 			while (true) {
 				try {
 					Socket request = server.accept();
-					Future<chat.Message> future = pool.submit(new Peticion(rootDirectory, INDEX_FILE, request));
+					Future<chat.Message> future = httpRequests.submit(new HttpRequestHandler(rootDirectory, INDEX_FILE, request, messagesQueue));
 					message = future.get();
 					
 					if(message != null) {						
@@ -90,7 +92,7 @@ public class ServidorHTTP {
 		
 				
 		try {
-			ServidorHTTP servidorWeb = new ServidorHTTP(docroot, port, "127.0.0.1", 9000);
+			HttpServer servidorWeb = new HttpServer(docroot, port, "127.0.0.1", 9000);
 			servidorWeb.start();
 			//servidorWeb.connect();
 			System.out.println("Servidor escuchando en el puerto: " + port);

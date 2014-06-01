@@ -7,21 +7,21 @@ import java.util.List;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
-public class ContactoJson {
+public class ContactJson {
 	
 	private File contactosFile;
 	
-	ContactoJson(File contactosFile) {
+	ContactJson(File contactosFile) {
 		this.setContactosFile(contactosFile);
 	}
 	
-	public Contacto retriveOne(int id) throws IOException{
-		Contacto contacto = null;
+	public Contact retriveOne(int id) throws IOException{
+		Contact contacto = null;
 		FileReader reader = null;
 		reader = new FileReader(contactosFile);
 		Gson gson = new Gson();
-		List<Contacto> listaContactos = gson.fromJson(reader, new TypeToken<List<Contacto>>(){}.getType());
-		for(Contacto item : listaContactos) {
+		List<Contact> listaContactos = gson.fromJson(reader, new TypeToken<List<Contact>>(){}.getType());
+		for(Contact item : listaContactos) {
 			if(item.getId() == id){
 				contacto = item;
 			}
@@ -31,13 +31,13 @@ public class ContactoJson {
 		
 	}
 	
-	public List<Contacto> retrieveAll() {
-		List<Contacto> listaContactos = Collections.<Contacto>emptyList();
+	public List<Contact> retrieveAll() {
+		List<Contact> listaContactos = Collections.<Contact>emptyList();
 		FileReader reader = null;
 		try {
 			reader = new FileReader(contactosFile);
 			Gson gson = new Gson();
-			listaContactos = gson.fromJson(reader, new TypeToken<List<Contacto>>(){}.getType());
+			listaContactos = gson.fromJson(reader, new TypeToken<List<Contact>>(){}.getType());
 			reader.close();
 			return listaContactos;
 		} catch (IOException e) {
@@ -49,13 +49,13 @@ public class ContactoJson {
 		
 	}
 	
-	public void save(Contacto nuevoContacto) {
+	public void save(Contact nuevoContacto) {
 		
 		if(!contactosFile.exists()) {
 			try {
 				contactosFile.createNewFile();
 				FileWriter writer = new FileWriter(contactosFile);
-				List<Contacto> listaContactos = new ArrayList<Contacto>();
+				List<Contact> listaContactos = new ArrayList<Contact>();
 				nuevoContacto.setId(1);
 				listaContactos.add(nuevoContacto);
 				Gson gson = new Gson();
@@ -71,11 +71,11 @@ public class ContactoJson {
 			try {
 				FileReader reader = new FileReader(contactosFile);				
 				Gson gson = new Gson();				
-				List<Contacto> listaContactos = gson.fromJson(reader, new TypeToken<List<Contacto>>(){}.getType());
+				List<Contact> listaContactos = gson.fromJson(reader, new TypeToken<List<Contact>>(){}.getType());
 				reader.close();
 				FileWriter writer = new FileWriter(contactosFile, false);
 				//aqui calcular el id del nuevo registro
-				Contacto last = listaContactos.get(listaContactos.size() - 1);
+				Contact last = listaContactos.get(listaContactos.size() - 1);
 				nuevoContacto.setId(last.getId() + 1);				
 				listaContactos.add(nuevoContacto);
 				String json = gson.toJson(listaContactos);

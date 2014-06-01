@@ -4,7 +4,7 @@ import java.util.List;
 
 public class HtmlBuilder {
 	
-	public static String createContactsTable(List<Contacto> listaContactos) {
+	public static String createContactsTable(List<Contact> listaContactos) {
 		StringBuilder table = new StringBuilder("<table class='table table-hover'>")
 		.append("<thead>\r\n")
 		.append("<tr>\r\n")
@@ -17,7 +17,7 @@ public class HtmlBuilder {
 		.append("<tbody>\r\n");
 		
 		if(!listaContactos.isEmpty()) {
-			for(Contacto contacto : listaContactos) {			
+			for(Contact contacto : listaContactos) {			
 				table.append("<tr>\r\n")
 				.append("<td><a href='/contactos/view.html?id=" + contacto.getId()  + "'>" + contacto.getNombre() + "</a></td>\r\n")
 				.append("<td>" + contacto.getIp() + "</td>\r\n")
@@ -34,7 +34,7 @@ public class HtmlBuilder {
 		
 	}
 	
-	public static String createPerfilView(Contacto contacto) {		
+	public static String createPerfilView(Contact contacto) {		
 		StringBuilder perfil = new StringBuilder("<div class='panel panel-default'>\r\n")
 		.append("<div class='panel-heading'>\r\n")
 		.append("<h3 class='panel-title'>Detalles de contacto</h3>\r\n")

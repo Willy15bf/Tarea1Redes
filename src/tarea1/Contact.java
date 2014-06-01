@@ -1,14 +1,14 @@
 package tarea1;
 
-public class Contacto {
+public class Contact {
 	private int id;
 	private String nombre;
 	private String ip;
 	private int puerto;
 	
-	public Contacto(){}
+	public Contact(){}
 	
-	public Contacto(int id, String nombre, String ip, int puerto) {
+	public Contact(int id, String nombre, String ip, int puerto) {
 		this.id = id;
 		this.nombre = nombre;
 		this.ip = ip;

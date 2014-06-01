@@ -39,48 +39,47 @@
 	</nav>    
 	<div class="container">
 		<div class="row">
-		<div class="page-header">
-			<h1>Chat</h1>
-		</div>
-		<div class="col-md-5">
-			<div class="panel panel-primary">
-				<div class="panel-heading">
-					<span class="glyphicon glyphicon-comment"></span> Chat
-					<div class="btn-group pull-right">
-						<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-							<span class="glyphicon glyphicon-chevron-down"></span>
-						</button>
-						<ul class="dropdown-menu slidedown">
-							<li><a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-refresh">
-							</span>Refresh</a></li>
-							<li><a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-ok-sign">
-							</span>Available</a></li>
-							<li><a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-remove">
-							</span>Busy</a></li>
-							<li><a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-time"></span>
-								Away</a></li>
-							<li class="divider"></li>
-							<li><a href="http://www.jquery2dotnet.com"><span class="glyphicon glyphicon-off"></span>
-								Sign Out</a></li>
+			<div class="page-header">
+				<h1>Chat</h1>
+			</div>
+			<div class="col-md-5">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<span class="glyphicon glyphicon-comment"></span> Chat
+						<div class="btn-group pull-right">
+							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+								<span class="glyphicon glyphicon-chevron-down"></span>
+							</button>
+							<ul class="dropdown-menu slidedown">
+								<li><a id="get-messages" href="#"><span class="glyphicon glyphicon-refresh">
+								</span>Actualizar</a></li>
+								<li><a href="#"><span class="glyphicon glyphicon-ok-sign">
+								</span>Conectado</a></li>
+								<li><a href="#"><span class="glyphicon glyphicon-remove">
+								</span>Ocupado</a></li>
+								<li><a href="#"><span class="glyphicon glyphicon-time"></span>
+									Ausente</a></li>
+								<li class="divider"></li>
+								<li><a href="#"><span class="glyphicon glyphicon-off"></span>
+									Salir</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="panel-body">
+						<ul class="chat">						                     
 						</ul>
 					</div>
-				</div>
-				<div class="panel-body">
-					<ul class="chat">						                     
-					</ul>
-				</div>
-				<div class="panel-footer">
-					<div class="input-group">
-						<input id="message-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
-						<span class="input-group-btn">
-							<button class="btn btn-warning btn-sm" id="btn-send-message">
-								Send</button>
-						</span>
+					<div class="panel-footer">
+						<div class="input-group">
+							<input id="message-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
+							<span class="input-group-btn">
+								<button class="btn btn-warning btn-sm" id="btn-send-message">
+									Send</button>
+							</span>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
-		
+			</div>			
 		</div>    
 	</div><!-- /.container -->
 	<!-- Bootstrap core JavaScript
@@ -112,7 +111,7 @@
 			
 		}
 
-		function appendMessage(element, message) {
+		function appendMessage(element, msg) {
 			var $messageList = $(element),
 				$li = $('<li></li>', {'class':'left clearfix'}); 
 
@@ -128,37 +127,72 @@
 					$('<div></div>', {'class':'header'}).append(
 						$('<strong></strong>', {
 							'class':'primary-font'							
-						}).text(message.from)
+						}).text("Server")
 					),
-					$('<p></p>').text(message.body)
+					$('<p></p>').text(msg.message)
 				)
 			);			
 			$messageList.append($li);
 			$messageList.scrollTop($messageList.get(0).scrollHeight);
 		} 
 
+		function getMessages(element) {
+			$messageList = $(element);
+
+			$.ajax({
+				crossDomain: true,
+				url: 'http://localhost:8080/contactos/getmessages',
+				type: 'post',
+				dataType: 'json',
+				data: {
+					user: 'value1',
+					from: 'Anonymous',
+					n: 1
+				}
+			})
+			.done(function(data) {				
+				console.log(data);
+				if(!($.isEmptyObject(data))) {
+					$.each(data, function(index, val) {
+						appendMessage('.chat', val);
+					});
+				}				
+			})
+			.fail(function() {
+				console.log("error");
+			})
+			.always(function() {
+				console.log("complete");
+			});
+			
+		}
+
 		$(document).ready(function(){
 			$.support.cors = true;
 			var $messageInput = $('#message-input'),
-				$btnSendMessage = $('#btn-send-message');
+				$btnSendMessage = $('#btn-send-message'),
+				$update = $('#get-messages');
 				
+			$update.on('click', function() {
+				getMessages('.chat');
+			});
 
 			$btnSendMessage.on('click', function(event) {
 				var messageBody = $messageInput.val(),
-					message = {};					
+					msg = {};					
 				
 				if($.trim(messageBody)) {
 					
-					message = {
+					msg = {
 						from:'Anonymous',
 						to:'Anonymous',
-						body:messageBody
+						message:messageBody
 					};
 					//mandar el mensaje
-					sendMessage(message);
+					sendMessage(msg);
 					
 					//agregar a la lista
-					appendMessage('.chat', message);
+					appendMessage('.chat', msg);
 					$messageInput.val('');		
 				}
 				
@@ -166,23 +200,22 @@
 
 			$messageInput.on('keypress', function(event) {
 				/* Act on the event */
-				if (event.which === 13 && event.shiftKey === false) {
-					console.log('send');
+				if (event.which === 13 && event.shiftKey === false) {					
 					var messageBody = $messageInput.val(),
-						message = {};					
+						msg = {};					
 					
 					if($.trim(messageBody)) {
 						
-						message = {
+						msg = {
 							from:'Anonymous',
 							to:'Anonymous',
-							body:messageBody
+							message:messageBody
 						};
 						//mandar el mensaje
-						sendMessage(message);
+						sendMessage(msg);
 						
 						//agregar a la lista
-						appendMessage('.chat', message);
+						appendMessage('.chat', msg);
 						$messageInput.val('');		
 					}
 
