@@ -6,8 +6,11 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+
 import org.apache.commons.io.FilenameUtils;
+
 import com.google.gson.*;
+
 import chat.Message;
 
 public class HttpRequestHandler implements Callable<Message> {
@@ -17,6 +20,11 @@ public class HttpRequestHandler implements Callable<Message> {
 	private String indexFileName = "index.html";
 	private static final String contactosFilePath = "data/contactos.json";
 	private BlockingQueue<Message> messagesQueue;
+	private OutputStream raw;
+	private Writer out;
+	private BufferedReader in;
+	private Message chatMessage = null;
+	
 	
 	HttpRequestHandler(File rootDirectory, String indexFileName, Socket connection, BlockingQueue<Message> messagesQueue) {
 		if (rootDirectory.isFile()) {
@@ -34,302 +42,218 @@ public class HttpRequestHandler implements Callable<Message> {
 		this.messagesQueue = messagesQueue;
 
 	}
+	
+	public void doPost(OutputStream raw, Writer out, BufferedReader in, String queryString ) throws IOException, InterruptedException {
+		File contactosFile = new File(contactosFilePath);
+		int contentLength = 0;
+		String line;
+		String contentLengthHeader = "Content-Length: ";
+		
+		//System.out.println("llego el request");
 
-	@Override
-	public Message call() throws Exception {
-		// TODO Auto-generated method stub
+		while (!(line = in.readLine()).equals("")) {
+			if (line.startsWith(contentLengthHeader)) {
+				contentLength = Integer.parseInt(line
+						.substring(contentLengthHeader.length()));
+			}
+		}
+
+		StringBuilder bodyRequest = new StringBuilder();
+
+		int c = 0;
+		for (int i = 0; i < contentLength; i++) {
+			c = in.read();
+			bodyRequest.append((char) c);
+		}
+
+		Map<String, List<String>> params = getUrlParameters(bodyRequest
+				.toString());
+		// solo para chequear
+		String[] urlParts = queryString.split("\\?");
+		String action = urlParts[0];
+			
+		if (action.startsWith("/contactos/")) {					
+			if (action.endsWith("new.html")) {												
+				ContactJson cj = new ContactJson(contactosFile);
+				Contact nuevoContacto = new Contact();
+				nuevoContacto.setNombre(params.get("name").get(0));
+				nuevoContacto.setIp(params.get("ip").get(0));
+				nuevoContacto.setPuerto(Integer.parseInt(params.get(
+						"port").get(0)));
+				cj.save(nuevoContacto);						
+										
+				String responsePage = new StringBuilder(
+						HtmlBuilder.createPageHeader(
+								"Contacto agregado con éxito", false))
+						.append("<row>").append("\r\n")
+						.append("<h3>Contacto agregado con éxito</h3>")
+						.append("\r\n")
+						.append("</row>")
+						.append("\r\n")
+						.append(HtmlBuilder.createPageFooter(false))
+						.toString();
+				
+					sendHeader(out, "HTTP/1.1 200 OK",
+							"text/html; charset=utf-8",
+							responsePage.length());
+				
+				out.write(responsePage);
+				out.flush();
+			} else if(action.endsWith("sendmessage")) {
+				sendMessage(params);				
+				
+			} else if(action.endsWith("getmessages")) {
+				getMessages();
+			} else {
+				sendNotFoundPage();
+			}
+
+		} else {
+			sendNotFoundPage();
+		}
+
+	}
+	
+	public void doGet(OutputStream raw, Writer out, BufferedReader in, String queryString) throws IOException {
+		if (queryString.endsWith("/")) {
+			queryString += indexFileName;
+		}
 		String root = rootDirectory.getPath();
 		File contactosFile = new File(contactosFilePath);
-		try {
-			OutputStream raw = new BufferedOutputStream(
-					connection.getOutputStream());
-			Writer out = new OutputStreamWriter(raw);
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					connection.getInputStream(), "US-ASCII"));
-			String requestLine = in.readLine();
-			String[] tokens = requestLine.split("\\s+");
-			String method = tokens[0];
-			String version = "";
-			String queryString = tokens[1];
+		String[] urlParts = queryString.split("\\?");
+		String pathName = urlParts[0];
 
-			if (method.equals("GET")) {
-				if (queryString.endsWith("/")) {
-					queryString += indexFileName;
-				}
+		String contentType = URLConnection.getFileNameMap()
+				.getContentTypeFor(pathName);
+		
+		File theFile = new File(rootDirectory, pathName.substring(1,
+				pathName.length()));
+		String ext = FilenameUtils.getExtension(theFile.getAbsolutePath());
+		
+		if(ext.equals("js")) {
+			contentType = "application/x-javascript";
+		} else if (ext.equals("css")) {
+			contentType = "text/css";
+		}
+		
+		if (theFile.canRead() && theFile.getCanonicalPath().startsWith(root)) {
+			String parentFolder = theFile.getParentFile().getName();
+			String fileName = theFile.getName();
 
-				String[] urlParts = queryString.split("\\?");
-				String pathName = urlParts[0];
+			if (parentFolder.equals("contactos")) {
+				if (fileName.equals("index.html")) {
+					// obtener todos los contactos y mostrarlos por la
+					// tabla
+					ContactJson cj = new ContactJson(contactosFile);
+					List<Contact> listaContactos = cj.retrieveAll();
+					String table = HtmlBuilder
+							.createContactsTable(listaContactos);
+					String index = new StringBuilder(
+							HtmlBuilder.createPageHeader(
+									"Lista de contactos", false))
+							.append("<row>")									
+							.append("\r\n")
+							.append("<div class='page-header'>")
+							.append("\r\n")
+							.append("<h1>Lista de contactos</h1>")
+							.append("\r\n")
+							.append("</div>")
+							.append("\r\n")
+							.append(table)
+							.append("</row>")
+							.append(HtmlBuilder.createPageFooter(false))
+							.toString();
+					
+					sendHeader(out, "HTTP/1.1 200 OK", contentType, index.length());
+					out.write(index);
+					out.flush();
 
-				String contentType = URLConnection.getFileNameMap()
-						.getContentTypeFor(pathName);
-				if (tokens.length > 2) {
-					version = tokens[2];
-				}
-				File theFile = new File(rootDirectory, pathName.substring(1,
-						pathName.length()));
-				String ext = FilenameUtils.getExtension(theFile.getAbsolutePath());
-				
-				if(ext.equals("js")) {
-					contentType = "application/x-javascript";
-				} else if (ext.equals("css")) {
-					contentType = "text/css";
-				}
-				
-				if (theFile.canRead()
-						&& theFile.getCanonicalPath().startsWith(root)) {
+				} else if (fileName.equals("view.html")) {
+					if (urlParts.length == 2) { // tiene parametros
+						Map<String, List<String>> params = getUrlParameters(queryString);								
+						int contactoId = Integer.parseInt(params.get("id").get(0));
+						ContactJson cj = new ContactJson(contactosFile);
+						Contact contacto = cj.retriveOne(contactoId);
 
-					String parentFolder = theFile.getParentFile().getName();
-					String fileName = theFile.getName();
-
-					if (parentFolder.equals("contactos")) {
-						if (fileName.equals("index.html")) {
-							// obtener todos los contactos y mostrarlos por la
-							// tabla
-							ContactJson cj = new ContactJson(contactosFile);
-							List<Contact> listaContactos = cj.retrieveAll();
-							String table = HtmlBuilder
-									.createContactsTable(listaContactos);
-							String index = new StringBuilder(
+						if (contacto == null) {
+							sendNotFoundPage();
+						} else {
+							// construir la pagina con la tabla y los
+							// contactos
+							String perfil = HtmlBuilder
+									.createPerfilView(contacto);
+							String view = new StringBuilder(
 									HtmlBuilder.createPageHeader(
-											"Lista de contactos", false))
-									.append("<row>")									
+											"Ver perfil", false))
+									.append("<row>")
 									.append("\r\n")
 									.append("<div class='page-header'>")
 									.append("\r\n")
-									.append("<h1>Lista de contactos</h1>")
+									.append("<h1>Ver perfil de contacto</h1>")
 									.append("\r\n")
 									.append("</div>")
 									.append("\r\n")
-									.append(table)
+									.append(perfil)
 									.append("</row>")
-									.append(HtmlBuilder.createPageFooter(false))
+									.append(HtmlBuilder
+											.createPageFooter(false))
 									.toString();
 
-							if (version.startsWith("HTTP/")) {
-								sendHeader(out, "HTTP/1.1 200 OK", contentType,
-										index.length());
-							}
-
-							out.write(index);
+							sendHeader(out, "HTTP/1.1 200 OK", contentType, view.length());
+							out.write(view);
 							out.flush();
 
-						} else if (fileName.equals("view.html")) {
-							if (urlParts.length == 2) { // tiene parametros
-								Map<String, List<String>> params = getUrlParameters(queryString);								
-								int contactoId = Integer.parseInt(params.get(
-										"id").get(0));
-								ContactJson cj = new ContactJson(
-										contactosFile);
-								Contact contacto = cj.retriveOne(contactoId);
-
-								if (contacto == null) {
-									String body = HtmlBuilder.errorPage(404,
-											"File Not Found");
-									if (version.startsWith("HTTP/")) {
-										sendHeader(out,
-												"HTTP/1.1 404 Not Found",
-												"text/html; charset=utf-8",
-												body.length());
-									}
-									out.write(body);
-									out.flush();
-								} else {
-									// construir la pagina con la tabla y los
-									// contactos
-									String perfil = HtmlBuilder
-											.createPerfilView(contacto);
-									String view = new StringBuilder(
-											HtmlBuilder.createPageHeader(
-													"Ver perfil", false))
-											.append("<row>")
-											.append("\r\n")
-											.append("<div class='page-header'>")
-											.append("\r\n")
-											.append("<h1>Ver perfil de contacto</h1>")
-											.append("\r\n")
-											.append("</div>")
-											.append("\r\n")
-											.append(perfil)
-											.append("</row>")
-											.append(HtmlBuilder
-													.createPageFooter(false))
-											.toString();
-
-									if (version.startsWith("HTTP/")) {
-										sendHeader(out, "HTTP/1.1 200 OK",
-												contentType, view.length());
-									}
-
-									out.write(view);
-									out.flush();
-
-								}
-
-							} else {// else si tiene parametros el query string
-								String body = HtmlBuilder.errorPage(404,
-										"File Not Found");
-								if (version.startsWith("HTTP/")) {
-									sendHeader(out, "HTTP/1.1 404 Not Found",
-											"text/html; charset=utf-8",
-											body.length());
-								}
-								out.write(body);
-								out.flush();
-							}// fin if si tiene parametros el query string
-
-						} else if (fileName.equals("new.html") || fileName.equals("chat.html")) {
-							byte[] theData = Files.readAllBytes(theFile.toPath());
-							if (version.startsWith("HTTP/")) {
-								sendHeader(out, "HTTP/1.1 200 OK", contentType,
-										theData.length);
-							}
-							raw.write(theData);
-							raw.flush();
-
-						} else {
-							String body = HtmlBuilder.errorPage(404,
-									"File Not Found");
-							if (version.startsWith("HTTP/")) {
-								sendHeader(out, "HTTP/1.1 404 Not Found",
-										"text/html; charset=utf-8",
-										body.length());
-							}
-							out.write(body);
-							out.flush();
 						}
-					} else {// else si esta dentro del directorio contactos
-						byte[] theData = Files.readAllBytes(theFile.toPath());
-						if (version.startsWith("HTTP/")) {
-							sendHeader(out, "HTTP/1.1 200 OK", contentType,
-									theData.length);
-						}
-						raw.write(theData);
-						raw.flush();
-					}
 
-				} else {// Si simplemente no se encontro el archivo buscado
-					String body = HtmlBuilder.errorPage(404, "File Not Found");
-					if (version.startsWith("HTTP/")) {
-						sendHeader(out, "HTTP/1.1 404 Not Found",
-								"text/html; charset=utf-8", body.length());
-					}
-					out.write(body);
-					out.flush();
-				}
-			} else if (method.equals("POST")) {
+					} else {// else si tiene parametros el query string
+						sendNotFoundPage();
+					}// fin if si tiene parametros el query string
 
-				int contentLength = 0;
-				String line;
-				String contentLengthHeader = "Content-Length: ";
-				
-				//System.out.println("llego el request");
-
-				while (!(line = in.readLine()).equals("")) {
-					if (line.startsWith(contentLengthHeader)) {
-						contentLength = Integer.parseInt(line
-								.substring(contentLengthHeader.length()));
-					}
-				}
-
-				StringBuilder bodyRequest = new StringBuilder();
-
-				int c = 0;
-				for (int i = 0; i < contentLength; i++) {
-					c = in.read();
-					bodyRequest.append((char) c);
-				}
-
-				Map<String, List<String>> params = getUrlParameters(bodyRequest
-						.toString());
-				// solo para chequear
-				String[] urlParts = queryString.split("\\?");
-				String action = urlParts[0];
-
-				if (tokens.length > 2) {
-					version = tokens[2];
-				}
-				
-				if (action.startsWith("/contactos/")) {					
-					if (action.endsWith("new.html")) {												
-						ContactJson cj = new ContactJson(contactosFile);
-						Contact nuevoContacto = new Contact();
-						nuevoContacto.setNombre(params.get("name").get(0));
-						nuevoContacto.setIp(params.get("ip").get(0));
-						nuevoContacto.setPuerto(Integer.parseInt(params.get(
-								"port").get(0)));
-						cj.save(nuevoContacto);						
-												
-						String responsePage = new StringBuilder(
-								HtmlBuilder.createPageHeader(
-										"Contacto agregado con éxito", false))
-								.append("<row>").append("\r\n")
-								.append("<h3>Contacto agregado con éxito</h3>")
-								.append("\r\n")
-								.append("</row>")
-								.append("\r\n")
-								.append(HtmlBuilder.createPageFooter(false))
-								.toString();
-						if (version.startsWith("HTTP/")) {
-							sendHeader(out, "HTTP/1.1 200 OK",
-									"text/html; charset=utf-8",
-									responsePage.length());
-						}
-						out.write(responsePage);
-						out.flush();
-					} else if(action.endsWith("sendmessage")) {
+				} else if (fileName.equals("new.html") || fileName.equals("chat.html")) {
+					byte[] theData = Files.readAllBytes(theFile.toPath());
 					
-						JsonObject jsonData = new JsonObject();
-						jsonData.addProperty("response", "success");						
-						Message chatMessage = new Message();
-						chatMessage.setType(Message.MESSAGE);
-						chatMessage.setMessage(params.get("message").get(0));						
-						if (version.startsWith("HTTP/")) {
-							sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
-						}
-						out.write(jsonData.toString());
-						out.flush();
-						return chatMessage;
-						
-					} else if(action.endsWith("getmessages")) {
-						List<Message> messageList = new ArrayList<Message>();
-						if(!messagesQueue.isEmpty()) {
-							messageList.add(messagesQueue.take());
-						}						
-						String jsonData = new Gson().toJson(messageList);
-						if (version.startsWith("HTTP/")) {
-							sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
-						}
-						out.write(jsonData.toString());
-						out.flush();
-					} else {
-						String body = HtmlBuilder.errorPage(404, "Not Found");
-						if (version.startsWith("HTTP/")) {
-							sendHeader(out, "HTTP/1.1 404 Not Found",
-									"text/html; charset=utf-8", body.length());
-						}
-						out.write(body);
-						out.flush();
-					}
+					sendHeader(out, "HTTP/1.1 200 OK", contentType, theData.length);					
+					raw.write(theData);
+					raw.flush();
 
 				} else {
-					String body = HtmlBuilder.errorPage(404, "Not Found");
-					if (version.startsWith("HTTP/")) {
-						sendHeader(out, "HTTP/1.1 404 Not Found",
-								"text/html; charset=utf-8", body.length());
-					}
-					out.write(body);
-					out.flush();
+					sendNotFoundPage();
 				}
+			} else {// else si esta dentro del directorio contactos
+				byte[] theData = Files.readAllBytes(theFile.toPath());				
+				sendHeader(out, "HTTP/1.1 200 OK", contentType, theData.length);				
+				raw.write(theData);
+				raw.flush();
+			}
+
+		} else {// Si simplemente no se encontro el archivo buscado
+			sendNotFoundPage();
+		}
+
+		
+	}
+
+	@Override
+	public Message call() throws Exception {		
+		try {
+			raw = new BufferedOutputStream(
+					connection.getOutputStream());
+			out = new OutputStreamWriter(raw);
+			in = new BufferedReader(new InputStreamReader(
+					connection.getInputStream(), "US-ASCII"));
+			String requestLine = in.readLine();
+			String[] tokens = requestLine.split("\\s+");
+			String method = tokens[0];			
+			String queryString = tokens[1];
+
+			if (method.equals("GET")) {
+				doGet(raw, out, in, queryString);			
 				
+			} else if (method.equals("POST")) {
+				doPost(raw, out, in, queryString);								
 
 			} else {
-				String body = HtmlBuilder.errorPage(501, "Not Implemented");
-				if (version.startsWith("HTTP/")) {
-					sendHeader(out, "HTTP/1.1 501 Not Implemented",
-							"text/html;charset=utf-8", body.length());
-				}
-				out.write(body);
-				out.flush();
+				sendNotImplementedPage();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -342,9 +266,24 @@ public class HttpRequestHandler implements Callable<Message> {
 				e.printStackTrace();
 			}
 		}
+		return chatMessage;
 
-		return null;
-
+	}
+	
+	private void sendNotFoundPage() throws IOException {
+		String body = HtmlBuilder.errorPage(404, "Not Found");			
+		sendHeader(out, "HTTP/1.1 404 Not Found",
+					"text/html; charset=utf-8", body.length());
+		
+		out.write(body);
+		out.flush();
+	}
+	
+	private void sendNotImplementedPage() throws IOException {
+		String body = HtmlBuilder.errorPage(501, "Not Implemented");		
+		sendHeader(out, "HTTP/1.1 501 Not Implemented",
+					"text/html;charset=utf-8", body.length());
+		out.write(body);
 	}
 
 	private void sendHeader(Writer out, String responseCode,
@@ -356,6 +295,30 @@ public class HttpRequestHandler implements Callable<Message> {
 		out.write("Content-length: " + length + "\r\n");
 		out.write("Content-type: " + contentType + "\r\n\r\n");
 		out.flush();
+	}
+	
+	private void getMessages() throws IOException, InterruptedException {
+		List<Message> messageList = new ArrayList<Message>();
+		if(!messagesQueue.isEmpty()) {
+			messageList.add(messagesQueue.take());
+		}						
+		String jsonData = new Gson().toJson(messageList);		
+		sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
+		
+		out.write(jsonData.toString());
+		out.flush();
+	}
+	
+	private void sendMessage(Map<String, List<String>> params) throws IOException{
+		JsonObject jsonData = new JsonObject();
+		jsonData.addProperty("response", "success");						
+		chatMessage = new Message();
+		chatMessage.setType(Message.MESSAGE);
+		chatMessage.setMessage(params.get("message").get(0));	
+		sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
+		out.write(jsonData.toString());
+		out.flush();		
+				
 	}
 
 	private Map<String, List<String>> getUrlParameters(String url)

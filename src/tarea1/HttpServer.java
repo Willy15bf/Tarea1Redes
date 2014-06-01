@@ -93,8 +93,7 @@ public class HttpServer {
 				
 		try {
 			HttpServer servidorWeb = new HttpServer(docroot, port, "127.0.0.1", 9000);
-			servidorWeb.start();
-			//servidorWeb.connect();
+			servidorWeb.start();			
 			System.out.println("Servidor escuchando en el puerto: " + port);
 		} catch (IOException e) {			
 			System.out.println("El servidor no pudo iniciar");
