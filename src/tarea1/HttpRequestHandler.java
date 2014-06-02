@@ -31,16 +31,131 @@ public class HttpRequestHandler implements Callable<Message> {
 			throw new IllegalArgumentException(
 					"rootDirectory debe ser un directorio, no un archivo");
 		}
+		this.connection = connection;	
+		this.messagesQueue = messagesQueue;
 		try {
 			rootDirectory = rootDirectory.getCanonicalFile();
-		} catch (IOException ex) {
+			this.raw = new BufferedOutputStream(
+					connection.getOutputStream());
+			this.out = new OutputStreamWriter(raw);
+			this.in = new BufferedReader(new InputStreamReader(
+					connection.getInputStream(), "US-ASCII"));
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		this.rootDirectory = rootDirectory;
 		if (indexFileName != null)
 			this.indexFileName = indexFileName;
-		this.connection = connection;	
-		this.messagesQueue = messagesQueue;
+		
 
+	}
+	
+	
+	@Override
+	public Message call() throws Exception {		
+		try {			
+			String requestLine = in.readLine();
+			String[] tokens = requestLine.split("\\s+");
+			String method = tokens[0];			
+			String queryString = tokens[1];
+
+			if (method.equals("GET")) {
+				doGet(raw, out, in, queryString);			
+				
+			} else if (method.equals("POST")) {
+				doPost(raw, out, in, queryString);								
+
+			} else {
+				sendNotImplementedPage();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+
+		} finally {
+			try {
+				connection.close();
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return chatMessage;
+
+	}
+	
+	
+	private void sendNotFoundPage() throws IOException {
+		String body = HtmlBuilder.errorPage(404, "Not Found");			
+		sendHeader(out, "HTTP/1.1 404 Not Found",
+					"text/html; charset=utf-8", body.length());
+		
+		out.write(body);
+		out.flush();
+	}
+	
+	private void sendNotImplementedPage() throws IOException {
+		String body = HtmlBuilder.errorPage(501, "Not Implemented");		
+		sendHeader(out, "HTTP/1.1 501 Not Implemented",
+					"text/html;charset=utf-8", body.length());
+		out.write(body);
+	}
+
+	private void sendHeader(Writer out, String responseCode,
+			String contentType, int length) throws IOException {
+		out.write(responseCode + "\r\n");
+		Date now = new Date();
+		out.write("Date: " + now + "\r\n");
+		out.write("Servidor:ServidorHTTP  1.0\r\n");
+		out.write("Content-length: " + length + "\r\n");
+		out.write("Content-type: " + contentType + "\r\n\r\n");
+		out.flush();
+	}
+	
+	private void getMessages() throws IOException, InterruptedException {
+		List<Message> messageList = new ArrayList<Message>();
+		if(!messagesQueue.isEmpty()) {
+			messageList.add(messagesQueue.take());
+		}						
+		String jsonData = new Gson().toJson(messageList);		
+		sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
+		
+		out.write(jsonData.toString());
+		out.flush();
+	}
+	
+	private void sendMessage(Map<String, List<String>> params) throws IOException{
+		JsonObject jsonData = new JsonObject();
+		jsonData.addProperty("response", "success");						
+		chatMessage = new Message();
+		chatMessage.setType(Message.MESSAGE);
+		chatMessage.setMessage(params.get("message").get(0));	
+		sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
+		out.write(jsonData.toString());
+		out.flush();		
+				
+	}
+
+	private Map<String, List<String>> getUrlParameters(String url)
+			throws UnsupportedEncodingException {
+		Map<String, List<String>> params = new HashMap<String, List<String>>();
+		String[] urlParts = url.split("\\?");		
+		String query = (urlParts.length > 1) ? urlParts[1] : urlParts[0];
+		for (String param : query.split("&")) {
+			String pair[] = param.split("=");
+			String key = URLDecoder.decode(pair[0], "UTF-8");
+			String value = "";
+			if (pair.length > 1) {
+				value = URLDecoder.decode(pair[1], "UTF-8");
+			}
+			List<String> values = params.get(key);
+			if (values == null) {
+				values = new ArrayList<String>();
+				params.put(key, values);
+			}
+			values.add(value);
+		}
+		
+		return params;
 	}
 	
 	public void doPost(OutputStream raw, Writer out, BufferedReader in, String queryString ) throws IOException, InterruptedException {
@@ -48,8 +163,6 @@ public class HttpRequestHandler implements Callable<Message> {
 		int contentLength = 0;
 		String line;
 		String contentLengthHeader = "Content-Length: ";
-		
-		//System.out.println("llego el request");
 
 		while (!(line = in.readLine()).equals("")) {
 			if (line.startsWith(contentLengthHeader)) {
@@ -59,13 +172,14 @@ public class HttpRequestHandler implements Callable<Message> {
 		}
 
 		StringBuilder bodyRequest = new StringBuilder();
-
+		//leemos el body del request
 		int c = 0;
 		for (int i = 0; i < contentLength; i++) {
 			c = in.read();
 			bodyRequest.append((char) c);
 		}
-
+		
+		//separamos los paramatros enviados
 		Map<String, List<String>> params = getUrlParameters(bodyRequest
 				.toString());
 		// solo para chequear
@@ -130,6 +244,7 @@ public class HttpRequestHandler implements Callable<Message> {
 				pathName.length()));
 		String ext = FilenameUtils.getExtension(theFile.getAbsolutePath());
 		
+		//fix para el chromium o chrome 
 		if(ext.equals("js")) {
 			contentType = "application/x-javascript";
 		} else if (ext.equals("css")) {
@@ -219,7 +334,7 @@ public class HttpRequestHandler implements Callable<Message> {
 				} else {
 					sendNotFoundPage();
 				}
-			} else {// else si esta dentro del directorio contactos
+			} else {// cualquier cosa fuera del directorio contactos
 				byte[] theData = Files.readAllBytes(theFile.toPath());				
 				sendHeader(out, "HTTP/1.1 200 OK", contentType, theData.length);				
 				raw.write(theData);
@@ -233,115 +348,5 @@ public class HttpRequestHandler implements Callable<Message> {
 		
 	}
 
-	@Override
-	public Message call() throws Exception {		
-		try {
-			raw = new BufferedOutputStream(
-					connection.getOutputStream());
-			out = new OutputStreamWriter(raw);
-			in = new BufferedReader(new InputStreamReader(
-					connection.getInputStream(), "US-ASCII"));
-			String requestLine = in.readLine();
-			String[] tokens = requestLine.split("\\s+");
-			String method = tokens[0];			
-			String queryString = tokens[1];
-
-			if (method.equals("GET")) {
-				doGet(raw, out, in, queryString);			
-				
-			} else if (method.equals("POST")) {
-				doPost(raw, out, in, queryString);								
-
-			} else {
-				sendNotImplementedPage();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-
-		} finally {
-			try {
-				connection.close();
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return chatMessage;
-
-	}
-	
-	private void sendNotFoundPage() throws IOException {
-		String body = HtmlBuilder.errorPage(404, "Not Found");			
-		sendHeader(out, "HTTP/1.1 404 Not Found",
-					"text/html; charset=utf-8", body.length());
-		
-		out.write(body);
-		out.flush();
-	}
-	
-	private void sendNotImplementedPage() throws IOException {
-		String body = HtmlBuilder.errorPage(501, "Not Implemented");		
-		sendHeader(out, "HTTP/1.1 501 Not Implemented",
-					"text/html;charset=utf-8", body.length());
-		out.write(body);
-	}
-
-	private void sendHeader(Writer out, String responseCode,
-			String contentType, int length) throws IOException {
-		out.write(responseCode + "\r\n");
-		Date now = new Date();
-		out.write("Date: " + now + "\r\n");
-		out.write("Servidor:ServidorHTTP  1.0\r\n");
-		out.write("Content-length: " + length + "\r\n");
-		out.write("Content-type: " + contentType + "\r\n\r\n");
-		out.flush();
-	}
-	
-	private void getMessages() throws IOException, InterruptedException {
-		List<Message> messageList = new ArrayList<Message>();
-		if(!messagesQueue.isEmpty()) {
-			messageList.add(messagesQueue.take());
-		}						
-		String jsonData = new Gson().toJson(messageList);		
-		sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
-		
-		out.write(jsonData.toString());
-		out.flush();
-	}
-	
-	private void sendMessage(Map<String, List<String>> params) throws IOException{
-		JsonObject jsonData = new JsonObject();
-		jsonData.addProperty("response", "success");						
-		chatMessage = new Message();
-		chatMessage.setType(Message.MESSAGE);
-		chatMessage.setMessage(params.get("message").get(0));	
-		sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
-		out.write(jsonData.toString());
-		out.flush();		
-				
-	}
-
-	private Map<String, List<String>> getUrlParameters(String url)
-			throws UnsupportedEncodingException {
-		Map<String, List<String>> params = new HashMap<String, List<String>>();
-		String[] urlParts = url.split("\\?");		
-		String query = (urlParts.length > 1) ? urlParts[1] : urlParts[0];
-		for (String param : query.split("&")) {
-			String pair[] = param.split("=");
-			String key = URLDecoder.decode(pair[0], "UTF-8");
-			String value = "";
-			if (pair.length > 1) {
-				value = URLDecoder.decode(pair[1], "UTF-8");
-			}
-			List<String> values = params.get(key);
-			if (values == null) {
-				values = new ArrayList<String>();
-				params.put(key, values);
-			}
-			values.add(value);
-		}
-		
-		return params;
-	}
 
 }
