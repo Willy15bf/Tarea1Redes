@@ -172,6 +172,9 @@
 			var $messageInput = $('#message-input'),
 				$btnSendMessage = $('#btn-send-message'),
 				$update = $('#get-messages');
+
+
+			var updateMessagesInterval = setInterval(getMessages, 5000);
 				
 			$update.on('click', function() {
 				getMessages('.chat');
