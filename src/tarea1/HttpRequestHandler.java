@@ -11,6 +11,8 @@ import org.apache.commons.io.FilenameUtils;
 
 import com.google.gson.*;
 
+import contacto.Contact;
+import contacto.ContactJson;
 import chat.Message;
 
 public class HttpRequestHandler implements Callable<Message> {
@@ -190,9 +192,9 @@ public class HttpRequestHandler implements Callable<Message> {
 			if (action.endsWith("new.html")) {												
 				ContactJson cj = new ContactJson(contactosFile);
 				Contact nuevoContacto = new Contact();
-				nuevoContacto.setNombre(params.get("name").get(0));
-				nuevoContacto.setIp(params.get("ip").get(0));
-				nuevoContacto.setPuerto(Integer.parseInt(params.get(
+				nuevoContacto.setUserName(params.get("name").get(0));
+				nuevoContacto.setIpAddress(params.get("ip").get(0));
+				nuevoContacto.setPort(Integer.parseInt(params.get(
 						"port").get(0)));
 				cj.save(nuevoContacto);						
 										

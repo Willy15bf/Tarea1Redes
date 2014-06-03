@@ -2,6 +2,8 @@ package tarea1;
 
 import java.util.List;
 
+import contacto.Contact;
+
 public class HtmlBuilder {
 	
 	public static String createContactsTable(List<Contact> listaContactos) {
@@ -19,9 +21,9 @@ public class HtmlBuilder {
 		if(!listaContactos.isEmpty()) {
 			for(Contact contacto : listaContactos) {			
 				table.append("<tr>\r\n")
-				.append("<td><a href='/contactos/view.html?id=" + contacto.getId()  + "'>" + contacto.getNombre() + "</a></td>\r\n")
-				.append("<td>" + contacto.getIp() + "</td>\r\n")
-				.append("<td>" + contacto.getPuerto() + "</td>\r\n")
+				.append("<td><a href='/contactos/view.html?id=" + contacto.getId()  + "'>" + contacto.getUserName() + "</a></td>\r\n")
+				.append("<td>" + contacto.getIpAddress() + "</td>\r\n")
+				.append("<td>" + contacto.getPort() + "</td>\r\n")
 				.append("<td><a href='/contactos/chat.html?id=" + contacto.getId()  + "'>" + "Iniciar" + "</a></td>\r\n")
 				.append("</tr>\r\n");		
 						
@@ -42,11 +44,11 @@ public class HtmlBuilder {
 		.append("<div class='panel-body'>\r\n")
 		.append("<dl class='dl-horizontal'>\r\n")
 		.append("<dt>Nombre</dt>")
-		.append("<dd>" + contacto.getNombre() + "</dd>\r\n")
+		.append("<dd>" + contacto.getUserName() + "</dd>\r\n")
 		.append("<dt>Dirección IP</dt>")
-		.append("<dd>" + contacto.getIp() + "</dd>\r\n")
+		.append("<dd>" + contacto.getIpAddress() + "</dd>\r\n")
 		.append("<dt>Puerto</dt>")
-		.append("<dd>" + contacto.getPuerto() + "</dd>\r\n")
+		.append("<dd>" + contacto.getPort() + "</dd>\r\n")
 		.append("</dl>\r\n")
 		.append("<a href='/contactos/index.html' type='button' class='btn btn-primary pull-right'>Volver</a>\r\n")
 		.append("</div>\r\n")

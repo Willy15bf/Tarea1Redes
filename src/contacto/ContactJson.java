@@ -1,4 +1,4 @@
-package tarea1;
+package contacto;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +11,7 @@ public class ContactJson {
 	
 	private File contactosFile;
 	
-	ContactJson(File contactosFile) {
+	public ContactJson(File contactosFile) {
 		this.setContactosFile(contactosFile);
 	}
 	
