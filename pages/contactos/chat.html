@@ -113,7 +113,8 @@
 
 		function appendMessage(element, msg) {
 			var $messageList = $(element),
-				$li = $('<li></li>', {'class':'left clearfix'}); 
+				$li = $('<li></li>', {'class':'left clearfix'}), 
+				height = 0;
 
 			$li.append(
 				$('<span></span>', {'class':'chat-img pull-left'}).append(
@@ -133,7 +134,13 @@
 				)
 			);			
 			$messageList.append($li);
-			$messageList.scrollTop($messageList.get(0).scrollHeight);
+
+			$(element + ' li').each(function(index, el) {
+				height += parseInt($(this).height());
+			});
+
+			height += '';
+			$messageList.animate({scrollTop: height});
 		} 
 
 		function getMessages(element) {

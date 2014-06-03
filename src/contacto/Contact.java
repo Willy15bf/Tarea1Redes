@@ -1,6 +1,12 @@
 package contacto;
 
-public class Contact {
+import java.io.Serializable;
+
+public class Contact implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2179862589068775223L;
 	private int id;
 	private String userName;
 	private String ipAddress;

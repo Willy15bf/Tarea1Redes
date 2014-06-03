@@ -42,7 +42,7 @@ public class HttpServer {
 			chatConnection = new Socket(chatServer, chatPort);
 			outStream = new ObjectOutputStream(chatConnection.getOutputStream());			
 			listener.submit(new MessagesListener(chatConnection, messagesQueue));
-			
+			//mandar menssaje con identidad del usuario
 			while (true) {
 				try {
 					Socket request = server.accept();
