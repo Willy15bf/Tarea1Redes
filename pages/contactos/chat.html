@@ -71,10 +71,10 @@
 					</div>
 					<div class="panel-footer">
 						<div class="input-group">
-							<input id="message-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
+							<input id="message-input" type="text" class="form-control input-sm" placeholder="Escriba su mensaje aquí..." />
 							<span class="input-group-btn">
 								<button class="btn btn-warning btn-sm" id="btn-send-message">
-									Send</button>
+									Enviar</button>
 							</span>
 						</div>
 					</div>
@@ -113,34 +113,20 @@
 
 		function appendMessage(element, msg) {
 			var $messageList = $(element),
-				$li = $('<li></li>', {'class':'left clearfix'}), 
-				height = 0;
+				$li = $('<li></li>', {'class':'clearfix'});
 
-			$li.append(
-				$('<span></span>', {'class':'chat-img pull-left'}).append(
-					$('<img/>', {
-						'src':'../assets/img/avatar.gif',
-						'alt':'User Avatar',
-						'class':'img-circle'
-					})
+			$li.append(								
+				$('<div></div>', {'class':'user-name pull-left'}).append(
+					$('<strong></strong>', {
+						'class':'primary-font'							
+					}).text("Usuario 1")
 				),
-				$('<div></div>', {'class':'chat-body clearfix'}).append(
-					$('<div></div>', {'class':'header'}).append(
-						$('<strong></strong>', {
-							'class':'primary-font'							
-						}).text("Server")
-					),
-					$('<p></p>').text(msg.message)
-				)
+				$('<p></p>').text(msg.message)
+				
 			);			
 			$messageList.append($li);
-
-			$(element + ' li').each(function(index, el) {
-				height += parseInt($(this).height());
-			});
-
-			height += '';
-			$messageList.animate({scrollTop: height});
+			$parent = $messageList.parent('.panel-body')
+			$parent.animate({ scrollTop: $messageList.height() }, 100);
 		} 
 
 		function getMessages(element) {
