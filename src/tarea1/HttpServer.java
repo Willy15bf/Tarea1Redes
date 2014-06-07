@@ -20,9 +20,11 @@ public class HttpServer {
     private Message message;
     private ExecutorService listener;
     protected BlockingQueue<Message> messagesQueue;
+    private String userName;
+    private String ipAddress;
 
 	
-	public HttpServer(File rootDirectory, int port, String chatServer, int chatPort) throws IOException {
+	public HttpServer(File rootDirectory, int port, String chatServer, int chatPort, String userName) throws IOException {
 		if (!rootDirectory.isDirectory()) {
 			throw new IOException("No existe el directorio " + rootDirectory);
 		}
@@ -30,7 +32,8 @@ public class HttpServer {
 		this.port = port;
 		this.chatServer = chatServer;
 		this.chatPort = chatPort;
-
+		this.userName = userName;
+		this.ipAddress = InetAddress.getLocalHost().getHostAddress();
 	}	
 
 	public void start() throws IOException{
@@ -42,11 +45,17 @@ public class HttpServer {
 			chatConnection = new Socket(chatServer, chatPort);
 			outStream = new ObjectOutputStream(chatConnection.getOutputStream());			
 			listener.submit(new MessagesListener(chatConnection, messagesQueue));
-			//mandar menssaje con identidad del usuario
+			
+			Message login = new Message(Message.LOGIN);
+			login.getUserFrom().setPort(port);
+			login.getUserFrom().setUserName(userName);
+			login.getUserFrom().setIpAddress(ipAddress);
+			outStream.writeObject(login);
+			
 			while (true) {
 				try {
 					Socket request = server.accept();
-					Future<chat.Message> future = httpRequests.submit(new HttpRequestHandler(rootDirectory, INDEX_FILE, request, messagesQueue));
+					Future<chat.Message> future = httpRequests.submit(new HttpRequestHandler(rootDirectory, INDEX_FILE, request, this));
 					message = future.get();
 					
 					if(message != null) {						
@@ -74,6 +83,22 @@ public class HttpServer {
 	}
 	
 	
+	public BlockingQueue<Message> getMessagesQueue() {
+		return messagesQueue;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
 	public static void main(String[] args) {
 		File docroot;
 		int port;
@@ -92,7 +117,7 @@ public class HttpServer {
 		
 				
 		try {
-			HttpServer servidorWeb = new HttpServer(docroot, port, "127.0.0.1", 9000);
+			HttpServer servidorWeb = new HttpServer(docroot, port, "127.0.0.1", 9000, "usuario1");
 			servidorWeb.start();			
 			System.out.println("Servidor escuchando en el puerto: " + port);
 		} catch (IOException e) {			

@@ -75,9 +75,16 @@
 							<span class="input-group-btn">
 								<button class="btn btn-warning btn-sm" id="btn-send-message">
 									Enviar</button>
-							</span>
+							</span>							
 						</div>
+						<!-- <div class="input-group">
+							<span>Adjuntar archivo</span>
+							<input type="file" name="file" id="file-upload">							
+						</div> -->
 					</div>
+				</div><!--Fin chat window -->
+				<div>
+					
 				</div>
 			</div>			
 		</div>    
@@ -164,13 +171,18 @@
 			$.support.cors = true;
 			var $messageInput = $('#message-input'),
 				$btnSendMessage = $('#btn-send-message'),
-				$update = $('#get-messages');
+				$update = $('#get-messages'),
+				$fileUpload = $('#file-upload');
 
 
 			var updateMessagesInterval = setInterval(getMessages, 5000);
 				
 			$update.on('click', function() {
 				getMessages('.chat');
+			});
+
+			$fileUpload.on('change', function(event) {
+				console.log($fileUpload.val());
 			});
 
 			$btnSendMessage.on('click', function(event) {

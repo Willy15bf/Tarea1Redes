@@ -201,6 +201,10 @@ public class HtmlBuilder {
 		.append("\r\n")
 		.append("</html>").toString();
 	}	
+	
+	public static String createChatPage(Contact user) {
+		return null;
+	}
 
 
 }

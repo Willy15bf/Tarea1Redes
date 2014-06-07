@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.io.FilenameUtils;
@@ -17,24 +16,24 @@ import chat.Message;
 
 public class HttpRequestHandler implements Callable<Message> {
 
+	private HttpServer httpServer;
 	private final Socket connection;
 	private File rootDirectory;
 	private String indexFileName = "index.html";
 	private static final String contactosFilePath = "data/contactos.json";
-	private BlockingQueue<Message> messagesQueue;
 	private OutputStream raw;
 	private Writer out;
 	private BufferedReader in;
 	private Message chatMessage = null;
 	
 	
-	HttpRequestHandler(File rootDirectory, String indexFileName, Socket connection, BlockingQueue<Message> messagesQueue) {
+	HttpRequestHandler(File rootDirectory, String indexFileName, Socket connection, HttpServer httpServer) {
 		if (rootDirectory.isFile()) {
 			throw new IllegalArgumentException(
 					"rootDirectory debe ser un directorio, no un archivo");
 		}
 		this.connection = connection;	
-		this.messagesQueue = messagesQueue;
+		this.httpServer = httpServer;
 		try {
 			rootDirectory = rootDirectory.getCanonicalFile();
 			this.raw = new BufferedOutputStream(
@@ -115,8 +114,8 @@ public class HttpRequestHandler implements Callable<Message> {
 	
 	private void getMessages() throws IOException, InterruptedException {
 		List<Message> messageList = new ArrayList<Message>();
-		if(!messagesQueue.isEmpty()) {
-			messageList.add(messagesQueue.take());
+		if(!httpServer.getMessagesQueue().isEmpty()) {
+			messageList.add(httpServer.getMessagesQueue().take());
 		}						
 		String jsonData = new Gson().toJson(messageList);		
 		sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
@@ -128,9 +127,20 @@ public class HttpRequestHandler implements Callable<Message> {
 	private void sendMessage(Map<String, List<String>> params) throws IOException{
 		JsonObject jsonData = new JsonObject();
 		jsonData.addProperty("response", "success");						
-		chatMessage = new Message();
+		chatMessage = new Message();		
 		chatMessage.setType(Message.MESSAGE);
-		chatMessage.setMessage(params.get("message").get(0));	
+		chatMessage.setFileTransfer(false);
+		//usuario emisor
+		chatMessage.getUserFrom().setIpAddress(httpServer.getIpAddress());
+		chatMessage.getUserFrom().setUserName(httpServer.getUserName());
+		chatMessage.getUserFrom().setPort(httpServer.getPort());
+		//mensaje
+		chatMessage.setMessage(params.get("message").get(0));
+		//falta usuario receptor
+		chatMessage.getUserTo().setIpAddress(params.get("ipto").get(0));
+		chatMessage.getUserTo().setPort(Integer.parseInt(params.get("port").get(0)));
+		chatMessage.getUserTo().setUserName(params.get("user").get(0));
+		
 		sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
 		out.write(jsonData.toString());
 		out.flush();		
@@ -263,24 +273,7 @@ public class HttpRequestHandler implements Callable<Message> {
 					// tabla
 					ContactJson cj = new ContactJson(contactosFile);
 					List<Contact> listaContactos = cj.retrieveAll();
-					String table = HtmlBuilder
-							.createContactsTable(listaContactos);
-					String index = new StringBuilder(
-							HtmlBuilder.createPageHeader(
-									"Lista de contactos", false))
-							.append("<row>")									
-							.append("\r\n")
-							.append("<div class='page-header'>")
-							.append("\r\n")
-							.append("<h1>Lista de contactos</h1>")
-							.append("\r\n")
-							.append("</div>")
-							.append("\r\n")
-							.append(table)
-							.append("</row>")
-							.append(HtmlBuilder.createPageFooter(false))
-							.toString();
-					
+					String index = buildContactIndex(listaContactos);					
 					sendHeader(out, "HTTP/1.1 200 OK", contentType, index.length());
 					out.write(index);
 					out.flush();
@@ -297,25 +290,7 @@ public class HttpRequestHandler implements Callable<Message> {
 						} else {
 							// construir la pagina con la tabla y los
 							// contactos
-							String perfil = HtmlBuilder
-									.createPerfilView(contacto);
-							String view = new StringBuilder(
-									HtmlBuilder.createPageHeader(
-											"Ver perfil", false))
-									.append("<row>")
-									.append("\r\n")
-									.append("<div class='page-header'>")
-									.append("\r\n")
-									.append("<h1>Ver perfil de contacto</h1>")
-									.append("\r\n")
-									.append("</div>")
-									.append("\r\n")
-									.append(perfil)
-									.append("</row>")
-									.append(HtmlBuilder
-											.createPageFooter(false))
-									.toString();
-
+							String view = buildContactView(contacto);
 							sendHeader(out, "HTTP/1.1 200 OK", contentType, view.length());
 							out.write(view);
 							out.flush();
@@ -348,6 +323,50 @@ public class HttpRequestHandler implements Callable<Message> {
 		}
 
 		
+	}
+	
+	public String buildContactIndex(List<Contact> listaContactos) {
+		String table = HtmlBuilder
+				.createContactsTable(listaContactos);
+		String index = new StringBuilder(
+				HtmlBuilder.createPageHeader(
+						"Lista de contactos", false))
+				.append("<row>")									
+				.append("\r\n")
+				.append("<div class='page-header'>")
+				.append("\r\n")
+				.append("<h1>Lista de contactos</h1>")
+				.append("\r\n")
+				.append("</div>")
+				.append("\r\n")
+				.append(table)
+				.append("</row>")
+				.append(HtmlBuilder.createPageFooter(false))
+				.toString();
+		return index;
+		
+	}
+	
+	public String buildContactView(Contact contacto) {
+		String perfil = HtmlBuilder
+				.createPerfilView(contacto);
+		String view = new StringBuilder(
+				HtmlBuilder.createPageHeader(
+						"Ver perfil", false))
+				.append("<row>")
+				.append("\r\n")
+				.append("<div class='page-header'>")
+				.append("\r\n")
+				.append("<h1>Ver perfil de contacto</h1>")
+				.append("\r\n")
+				.append("</div>")
+				.append("\r\n")
+				.append(perfil)
+				.append("</row>")
+				.append(HtmlBuilder
+						.createPageFooter(false))
+				.toString();
+		return view;
 	}
 
 
