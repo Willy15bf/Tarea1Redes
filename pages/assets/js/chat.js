@@ -88,17 +88,15 @@ $(document).ready(function(){
 		$contactDetailsIpAddress = $('#contact-details-ip-address'),
 		$contactDetailsPort = $('#contact-details-port'),
 		$stop = $('#stop-everything');
+	
+	var	updateMessagesInterval = setInterval(function() {getMessages($contactDetailsName.text())}, 5000);
+	
 
-	
-	var = updateMessagesInterval = setInterval(function() {getMessages($contactDetailsName.text())}, 5000);
-	
-		
 	$stop.on('click', function(event) {
-		event.preventDefault();
 		clearInterval(updateMessagesInterval);
-		//enviar mensaje de logout
 		message = new Message(3, $userName.text(), "server", "127.0.0.1", 0, "exit"); 
 		sendMessage(message);
+		//enviar mensaje de logout
 	});
 		
 	$update.on('click', function() {
