@@ -3,6 +3,7 @@ import java.net.*;
 import java.io.*;
 import java.util.concurrent.*;
 
+import contacto.Contact;
 import chat.Message;
 
 public class HttpServer {	
@@ -20,8 +21,8 @@ public class HttpServer {
     private Message message;
     private ExecutorService listener;
     protected BlockingQueue<Message> messagesQueue;
-    private String userName;
-    private String ipAddress;
+    private Contact user;
+    private boolean exit = false;
 
 	
 	public HttpServer(File rootDirectory, int port, String chatServer, int chatPort, String userName) throws IOException {
@@ -32,8 +33,7 @@ public class HttpServer {
 		this.port = port;
 		this.chatServer = chatServer;
 		this.chatPort = chatPort;
-		this.userName = userName;
-		this.ipAddress = InetAddress.getLocalHost().getHostAddress();
+		this.user = new Contact(userName, InetAddress.getLocalHost().getHostAddress(), port);
 	}	
 
 	public void start() throws IOException{
@@ -46,21 +46,32 @@ public class HttpServer {
 			outStream = new ObjectOutputStream(chatConnection.getOutputStream());			
 			listener.submit(new MessagesListener(chatConnection, messagesQueue));
 			
-			Message login = new Message(Message.LOGIN);
+			Message login = new Message(Message.LOGIN);			
 			login.getUserFrom().setPort(port);
-			login.getUserFrom().setUserName(userName);
-			login.getUserFrom().setIpAddress(ipAddress);
+			login.getUserFrom().setUserName(user.getUserName());
+			login.getUserFrom().setIpAddress(user.getIpAddress());
 			outStream.writeObject(login);
 			
-			while (true) {
+			while (!exit) {
 				try {
 					Socket request = server.accept();
 					Future<chat.Message> future = httpRequests.submit(new HttpRequestHandler(rootDirectory, INDEX_FILE, request, this));
 					message = future.get();
 					
 					if(message != null) {						
-						System.out.println(message.getMessage());
-						outStream.writeObject(message);
+						//System.out.println(message.getMessage());
+						switch(message.getType()) {
+							
+							case Message.MESSAGE:
+								outStream.writeObject(message);
+								break;
+							case Message.LOGOUT:
+								outStream.writeObject(message);
+								exit = true;
+								System.out.println(user.getUserName() + " saliendo");
+								break;
+						}
+						
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -86,17 +97,13 @@ public class HttpServer {
 	public BlockingQueue<Message> getMessagesQueue() {
 		return messagesQueue;
 	}
+	
+	public Contact getUser() {
+		return user;
+	}
 
 	public int getPort() {
 		return port;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public String getIpAddress() {
-		return ipAddress;
 	}
 
 	public static void main(String[] args) {
@@ -113,13 +120,13 @@ public class HttpServer {
 		} catch(RuntimeException e) {
 			port = 8080;
 			
-		}
-		
+		}		
 				
 		try {
-			HttpServer servidorWeb = new HttpServer(docroot, port, "127.0.0.1", 9000, "usuario1");
-			servidorWeb.start();			
+			HttpServer servidorWeb = new HttpServer(docroot, port, "127.0.0.1", 9000, "ivan");
 			System.out.println("Servidor escuchando en el puerto: " + port);
+			servidorWeb.start();			
+			
 		} catch (IOException e) {			
 			System.out.println("El servidor no pudo iniciar");
 		}

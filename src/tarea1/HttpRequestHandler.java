@@ -112,7 +112,8 @@ public class HttpRequestHandler implements Callable<Message> {
 		out.flush();
 	}
 	
-	private void getMessages() throws IOException, InterruptedException {
+	private void getMessages(Map<String, List<String>> params) throws IOException, InterruptedException {
+		//String userFrom = params.get("from").get(0);
 		List<Message> messageList = new ArrayList<Message>();
 		if(!httpServer.getMessagesQueue().isEmpty()) {
 			messageList.add(httpServer.getMessagesQueue().take());
@@ -128,18 +129,18 @@ public class HttpRequestHandler implements Callable<Message> {
 		JsonObject jsonData = new JsonObject();
 		jsonData.addProperty("response", "success");						
 		chatMessage = new Message();		
-		chatMessage.setType(Message.MESSAGE);
-		chatMessage.setFileTransfer(false);
+		//chatMessage.setFileTransfer(false);
 		//usuario emisor
-		chatMessage.getUserFrom().setIpAddress(httpServer.getIpAddress());
-		chatMessage.getUserFrom().setUserName(httpServer.getUserName());
+		chatMessage.getUserFrom().setIpAddress(httpServer.getUser().getIpAddress());
+		chatMessage.getUserFrom().setUserName(httpServer.getUser().getUserName());
 		chatMessage.getUserFrom().setPort(httpServer.getPort());
 		//mensaje
+		chatMessage.setType(Integer.parseInt(params.get("type").get(0)));
 		chatMessage.setMessage(params.get("message").get(0));
 		//falta usuario receptor
-		chatMessage.getUserTo().setIpAddress(params.get("ipto").get(0));
+		chatMessage.getUserTo().setIpAddress(params.get("ipAddress").get(0));
 		chatMessage.getUserTo().setPort(Integer.parseInt(params.get("port").get(0)));
-		chatMessage.getUserTo().setUserName(params.get("user").get(0));
+		chatMessage.getUserTo().setUserName(params.get("userName").get(0));
 		
 		sendHeader(out, "HTTP/1.1 200 OK", "application/json; charset=utf-8", jsonData.toString().length());
 		out.write(jsonData.toString());
@@ -210,12 +211,9 @@ public class HttpRequestHandler implements Callable<Message> {
 										
 				String responsePage = new StringBuilder(
 						HtmlBuilder.createPageHeader(
-								"Contacto agregado con éxito", false))
-						.append("<row>").append("\r\n")
-						.append("<h3>Contacto agregado con éxito</h3>")
-						.append("\r\n")
+								"Contacto agregado con éxito", false, httpServer.getUser()))
+						.append("<row>").append("<h3>Contacto agregado con éxito</h3>")
 						.append("</row>")
-						.append("\r\n")
 						.append(HtmlBuilder.createPageFooter(false))
 						.toString();
 				
@@ -229,7 +227,7 @@ public class HttpRequestHandler implements Callable<Message> {
 				sendMessage(params);				
 				
 			} else if(action.endsWith("getmessages")) {
-				getMessages();
+				getMessages(params);
 			} else {
 				sendNotFoundPage();
 			}
@@ -330,7 +328,7 @@ public class HttpRequestHandler implements Callable<Message> {
 				.createContactsTable(listaContactos);
 		String index = new StringBuilder(
 				HtmlBuilder.createPageHeader(
-						"Lista de contactos", false))
+						"Lista de contactos", false, httpServer.getUser()))
 				.append("<row>")									
 				.append("\r\n")
 				.append("<div class='page-header'>")
@@ -350,18 +348,21 @@ public class HttpRequestHandler implements Callable<Message> {
 	public String buildContactView(Contact contacto) {
 		String perfil = HtmlBuilder
 				.createPerfilView(contacto);
+		String chatWindow = HtmlBuilder.createChatWindow();
 		String view = new StringBuilder(
 				HtmlBuilder.createPageHeader(
-						"Ver perfil", false))
+						"Ver perfil", false, httpServer.getUser()))
 				.append("<row>")
-				.append("\r\n")
+				.append("<script>window.port = " + httpServer.getPort() +  ";</script>")
 				.append("<div class='page-header'>")
-				.append("\r\n")
 				.append("<h1>Ver perfil de contacto</h1>")
-				.append("\r\n")
 				.append("</div>")
-				.append("\r\n")
+				.append("<div class='col-md-6'>")				
 				.append(perfil)
+				.append("</div>")
+				.append("<div class='col-md-6'>")
+				.append(chatWindow)
+				.append("</div>")
 				.append("</row>")
 				.append(HtmlBuilder
 						.createPageFooter(false))

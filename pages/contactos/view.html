@@ -7,7 +7,7 @@
 	</head>
 	<body>
 		<div class="row">
-			<div class="col-md-6">
+			<div class="col-md-5">
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">Detalles de contacto</h3>
@@ -25,6 +25,44 @@
 					</div>
 				</div>				
 			</div>
+			<div class="col-md-5">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<span class="glyphicon glyphicon-comment"></span> Chat
+						<div class="btn-group pull-right">
+							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+								<span class="glyphicon glyphicon-chevron-down"></span>
+							</button>
+							<ul class="dropdown-menu slidedown">
+								<li><a id="get-messages" href="#"><span class="glyphicon glyphicon-refresh">
+								</span>Actualizar</a></li>
+								<li><a href="#"><span class="glyphicon glyphicon-ok-sign">
+								</span>Conectado</a></li>
+								<li><a href="#"><span class="glyphicon glyphicon-remove">
+								</span>Ocupado</a></li>
+								<li><a href="#"><span class="glyphicon glyphicon-time"></span>
+									Ausente</a></li>
+								<li class="divider"></li>
+								<li><a href="#"><span class="glyphicon glyphicon-off"></span>
+									Salir</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="panel-body">
+						<ul class="chat">						                     
+						</ul>
+					</div>
+					<div class="panel-footer">
+						<div class="input-group">
+							<input id="message-input" type="text" class="form-control input-sm" placeholder="Escriba su mensaje aquí..." />
+							<span class="input-group-btn">
+								<button class="btn btn-warning btn-sm" id="btn-send-message">
+									Enviar</button>
+							</span>							
+						</div>												
+					</div>
+				</div><!--Fin chat window -->
+			</div>		
 
 		</div>
 	</body>

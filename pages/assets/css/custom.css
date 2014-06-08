@@ -13,3 +13,11 @@ body {
 .error-color {
   color: rgb(185, 74, 72);
 }
+
+#user-name:after {
+  content:'@';
+}
+
+#user-ip-address:after {
+  content:':';
+}

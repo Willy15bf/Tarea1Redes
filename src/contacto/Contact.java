@@ -14,6 +14,10 @@ public class Contact implements Serializable{
 	
 	public Contact() {}
 	
+	public Contact(String userName) {
+		this.userName = userName;
+	}
+	
 	public Contact(String userName, String ipAddress) {
 		this.userName = userName;
 		this.ipAddress = ipAddress;

@@ -12,8 +12,8 @@ public class Message implements Serializable{
 	public static final int MESSAGE = 2;	
 	public static final int LOGOUT = 3;	
 	private int type;	
-	private boolean fileTransfer;
-	private byte[] file;
+	//private boolean fileTransfer;
+	//private byte[] file;
 	private Contact userFrom;
 	private Contact userTo;
 	private String message;	
@@ -44,13 +44,13 @@ public class Message implements Serializable{
 		return userTo;
 	}	
 	
-	public boolean isFileTransfer() {
-		return fileTransfer;
-	}
-
-	public void setFileTransfer(boolean fileTransfer) {
-		this.fileTransfer = fileTransfer;
-	}
+//	public boolean isFileTransfer() {
+//		return fileTransfer;
+//	}
+//
+//	public void setFileTransfer(boolean fileTransfer) {
+//		this.fileTransfer = fileTransfer;
+//	}
 	
 	public int getType() {
 		return type;
@@ -68,12 +68,12 @@ public class Message implements Serializable{
 		this.message = message;
 	}
 
-	public byte[] getFile() {
-		return file;
-	}
-
-	public void setFile(byte[] file) {
-		this.file = file;
-	}
+//	public byte[] getFile() {
+//		return file;
+//	}
+//
+//	public void setFile(byte[] file) {
+//		this.file = file;
+//	}
 	
 }
